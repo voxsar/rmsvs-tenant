@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -31,4 +30,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'digitalocean' => [
+        'token' => env('DO_TOKEN'),
+        'domain' => env('APP_DOMAIN', 'rms.legistant.com'),
+        'ip' => env('SERVER_PUBLIC_IP_ADDRESS'),
+    ],
 ];

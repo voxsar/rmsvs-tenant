@@ -14,15 +14,15 @@ class TopNationalitiesChart extends ChartWidget
 
     protected function getData(): array
     {
-        $data = DB::table('guests')
-            ->select('nationality', DB::raw('count(*) as count'))
+        $data = DB::connection("tenant")->table('guests')
+            ->select('nationality', DB::connection("tenant")->raw('count(*) as count'))
             ->groupBy('nationality')
             ->orderBy('count', 'desc')
             ->limit(6) // Top 5 plus "Others"
             ->get();
         
         // If there are more than 5 nationalities, combine the rest as "Others"
-        $total = DB::table('guests')->count();
+        $total = DB::connection("tenant")->table('guests')->count();
         $topNationalities = $data->take(5);
         $topTotal = $topNationalities->sum('count');
         

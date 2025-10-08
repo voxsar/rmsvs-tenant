@@ -14,8 +14,8 @@ class GenderDistributionChart extends ChartWidget
 
     protected function getData(): array
     {
-        $data = DB::table('guests')
-            ->select('sex', DB::raw('count(*) as count'))
+        $data = DB::connection("tenant")->table('guests')
+            ->select('sex', DB::connection("tenant")->raw('count(*) as count'))
             ->groupBy('sex')
             ->get();
 

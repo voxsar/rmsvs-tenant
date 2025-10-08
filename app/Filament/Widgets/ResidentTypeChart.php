@@ -14,8 +14,8 @@ class ResidentTypeChart extends ChartWidget
 
     protected function getData(): array
     {
-        $data = DB::table('guests')
-            ->select('type', DB::raw('count(*) as count'))
+        $data = DB::connection("tenant")->table('guests')
+            ->select('type', DB::connection("tenant")->raw('count(*) as count'))
             ->groupBy('type')
             ->get();
 

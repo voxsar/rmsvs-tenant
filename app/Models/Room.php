@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Room extends Model
 {
+	use UsesTenantConnection;
     use HasFactory;
     
     protected $fillable = [
@@ -17,6 +19,7 @@ class Room extends Model
         'building',
         'floor',
         'status',
+        'max_occupants',
         'description',
     ];
     
@@ -79,5 +82,15 @@ class Room extends Model
         $pivotRecord->save();
         
         return $qrPath . $fileName;
+    }
+    
+    /**
+     * Get the current number of occupants in the room
+     */
+    public function getCurrentOccupantsCount()
+    {
+        return $this->checkIns()
+            ->whereNull('date_of_departure')
+            ->count();
     }
 }

@@ -6,15 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Guest extends Model
 {
+	use UsesTenantConnection;
     use HasFactory;
 
     protected $fillable = [
-        'TRN',
+        'trn',
         'first_name',
         'middle_name',
         'last_name',
@@ -30,11 +33,17 @@ class Guest extends Model
         'type',
         'is_active',
         'qr_code',
+        // New population management fields
+        'pps_number',
+        'iban',
+        'job_title',
+        'assigned_room_id',
+        'authorized_absence',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
-        'is_active' => 'boolean',
+        'authorized_absence' => 'boolean',
     ];
 
     protected static function boot()
@@ -44,6 +53,28 @@ class Guest extends Model
         static::created(function ($guest) {
             // Generate QR code for the guest
             $guest->generateQrCode();
+            
+            // Automatically create check-in record for residents with an assigned room
+            if ($guest->type === 'RESIDENT' && $guest->assigned_room_id) {
+                $checkIn = new CheckIn();
+                $checkIn->guest_id = $guest->id;
+                $checkIn->room_id = $guest->assigned_room_id;
+                $checkIn->date_of_arrival = now(); // Current date as check-in date
+                // No date_of_departure (leaving it null to indicate active check-in)
+                $checkIn->save();
+                
+                // Generate QR code for room access
+                if ($guest->assignedRoom) {
+                    $guest->assignedRoom->generateGuestRoomQrCode($guest);
+                }
+                
+                // Update room status to occupied
+                $room = Room::find($guest->assigned_room_id);
+                if ($room && $room->status !== 'maintenance') {
+                    $room->status = 'occupied';
+                    $room->save();
+                }
+            }
         });
     }
 
@@ -81,6 +112,29 @@ class Guest extends Model
         return $this->hasMany(CheckIn::class, 'guest_id');
     }
 
+	//current room
+	public function currentRoom()
+	{
+		//get the latest check-in record
+		$latestCheckIn = $this->checkIns()
+			->whereNotNull('date_of_arrival')
+			->latest('date_of_arrival')
+			->first();
+		//return the room associated with the latest check-in record
+		return $latestCheckIn ? $latestCheckIn->room() : new Room();
+	}
+	//current room
+	public function currentRoomNo()
+	{
+		//get the latest check-in record
+		$latestCheckIn = $this->checkIns()
+			->whereNotNull('date_of_arrival')
+			->latest('date_of_arrival')
+			->first();
+		//return the room associated with the latest check-in record
+		return $latestCheckIn ? $latestCheckIn->room->room_no : 'N/A';
+	}
+
     /*public function customRequests(): HasMany
     {
         return $this->hasMany(CustomRequest::class, 'guest_id');
@@ -101,5 +155,93 @@ class Guest extends Model
 					->using(CustomRequest::class)
 					->withPivot('request_type', 'description', 'status', 'response_msg', 'responded_at')
                     ->withTimestamps();
+    }
+
+    /**
+     * Get the assigned room for a resident
+     */
+    public function assignedRoom(): BelongsTo
+    {
+        return $this->belongsTo(Room::class, 'assigned_room_id');
+    }
+    
+    /**
+     * Determines if a field is required based on the guest type
+     */
+    public function isFieldRequired(string $field): bool
+    {
+        return match ($field) {
+            'TRN' => $this->type === 'RESIDENT',
+            'assigned_room_id' => $this->type === 'RESIDENT',
+            'pps_number', 'iban', 'job_title' => $this->type === 'STAFF',
+            default => false,
+        };
+    }
+    
+    /**
+     * Get all absence records for this guest
+     */
+    public function absenceRecords(): HasMany
+    {
+        return $this->hasMany(AbsenceRecord::class);
+    }
+    
+    /**
+     * Get active absences for this guest
+     */
+    public function activeAbsences()
+    {
+        return $this->absenceRecords()
+            ->where('status', 'active')
+            ->whereNull('end_date');
+    }
+    
+    /**
+     * Check if the guest is currently absent
+     */
+    public function isCurrentlyAbsent(): bool
+    {
+        return $this->activeAbsences()->exists();
+    }
+    
+    /**
+     * Get the duration of the current absence in hours
+     */
+    public function currentAbsenceDuration(): ?int
+    {
+        $activeAbsence = $this->activeAbsences()->first();
+        
+        if (!$activeAbsence) {
+            return null;
+        }
+        
+        return $activeAbsence->calculateDuration();
+    }
+    
+    /**
+     * Record a new absence when a guest checks out
+     */
+    public function recordAbsence(CheckIn $checkIn): AbsenceRecord
+    {
+        return AbsenceRecord::recordAbsence($this, $checkIn);
+    }
+    
+    /**
+     * Complete all active absences for this guest
+     */
+    public function completeAbsences(CheckIn $checkIn = null): void
+    {
+        $now = now();
+        
+        $this->activeAbsences()->get()->each(function ($absence) use ($now, $checkIn) {
+            $absence->end_date = $now;
+            $absence->status = 'completed';
+            
+            if ($checkIn) {
+                $absence->check_out_id = $checkIn->id;
+            }
+            
+            $absence->updateDuration();
+        });
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CheckIn extends Pivot
 {
+	use UsesTenantConnection;
     use HasFactory;
 	/**
 	 * Indicates if the IDs are auto-incrementing.
@@ -23,6 +25,7 @@ class CheckIn extends Pivot
     protected $fillable = [
         'guest_id',
         'room_id',
+		'activity_type',
         'date_of_arrival',
         'date_of_departure',
 		'qr_code'
@@ -49,11 +52,33 @@ class CheckIn extends Pivot
 
         static::created(function ($checkIn) {
             $checkIn->ensureGuestRoomRelation();
+            
+            // If this is a check-out (date_of_arrival is set), record an absence
+            if ($checkIn->date_of_arrival && $checkIn->guest && $checkIn->guest->type === 'RESIDENT') {
+                $checkIn->guest->recordAbsence($checkIn);
+            }
+            
+            // If this is a check-in (date_of_departure is set), complete any active absences
+            if ($checkIn->date_of_departure && $checkIn->guest && $checkIn->guest->type === 'RESIDENT') {
+                $checkIn->guest->completeAbsences($checkIn);
+            }
         });
 
         static::updated(function ($checkIn) {
             if ($checkIn->isDirty('room_id')) {
                 $checkIn->ensureGuestRoomRelation();
+            }
+            
+            // If date_of_arrival was added/changed, record an absence
+            if ($checkIn->isDirty('date_of_arrival') && $checkIn->date_of_arrival && 
+                $checkIn->guest && $checkIn->guest->type === 'RESIDENT') {
+                $checkIn->guest->recordAbsence($checkIn);
+            }
+            
+            // If date_of_departure was added/changed, complete any active absences
+            if ($checkIn->isDirty('date_of_departure') && $checkIn->date_of_departure && 
+                $checkIn->guest && $checkIn->guest->type === 'RESIDENT') {
+                $checkIn->guest->completeAbsences($checkIn);
             }
         });
     }

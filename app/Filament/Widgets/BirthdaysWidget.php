@@ -20,6 +20,7 @@ class BirthdaysWidget extends BaseWidget
             ->query(
                 // Find guests with birthdays in the next 30 days
                 Guest::query()
+                    ->where('type', 'RESIDENT') // Only show Residents 
                     ->whereRaw('
                         (
                             MONTH(date_of_birth) = MONTH(CURRENT_DATE) AND 
@@ -118,7 +119,7 @@ class BirthdaysWidget extends BaseWidget
                 Tables\Actions\Action::make('view_profile')
                     ->label('View Profile')
                     ->icon('heroicon-o-eye')
-                    ->url(fn (Guest $record): string => route('filament.admin.resources.guests.view', ['record' => $record])),
+                    ->url(fn (Guest $record): string => route('filament.admin.resources.tenant.guests.view', ['record' => $record])),
             ]);
     }
 }

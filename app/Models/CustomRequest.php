@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class CustomRequest extends Pivot
 {
+	use UsesTenantConnection;
     use HasFactory;
 	public $incrementing = true;
 	protected $table = 'custom_requests';
@@ -19,6 +21,7 @@ class CustomRequest extends Pivot
         'room_id',
         'consumable_id',
         'request_type',
+		'activity_type',
         'description',
         'status',
         'response_msg',

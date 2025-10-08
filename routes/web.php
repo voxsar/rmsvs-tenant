@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Tenant;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\ScanController;
@@ -15,17 +16,19 @@ use App\Http\Controllers\ScanController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function() {
+	return Tenant::current()->name == "landlord" ? redirect()->to('super') : redirect()->to('admin');
 });
 
-// Guest routes
-Route::get('/guests/{guest}', [GuestController::class, 'show'])->name('guest.show');
+Route::middleware('tenant')->group(function() {
+	// Guest routes
+	Route::get('/guests/{guest}', [GuestController::class, 'show'])->name('guest.show');
 
-// Scanner routes
-Route::get('/scan/{scanner}', [ScanController::class, 'scanPage'])->name('scanner.scan');
-Route::post('/scan/{scanner}/process', [ScanController::class, 'processQrScan'])->name('scanner.process');
+	// Scanner routes
+	Route::get('/scan/{scanner}', [ScanController::class, 'scanPage'])->name('scanner.scan');
+	Route::post('/scan/{scanner}/process', [ScanController::class, 'processQrScan'])->name('scanner.process');
 
-// Consumables routes
-Route::get('/consumables/{guest}/{room}', [ScanController::class, 'consumablesPage'])->name('consumables.page');
-Route::post('/consumables/request/{checkIn}', [ScanController::class, 'requestConsumable'])->name('consumables.request');
+	// Consumables routes
+	Route::get('/consumables/{guest}/{room}', [ScanController::class, 'consumablesPage'])->name('consumables.page');
+	Route::post('/consumables/request/{checkIn}', [ScanController::class, 'requestConsumable'])->name('consumables.request');
+});

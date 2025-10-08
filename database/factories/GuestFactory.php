@@ -26,27 +26,9 @@ class GuestFactory extends Factory
 
 			'TRN' => $this->faker->unique()->numerify('TRN-########'),
 			'date_of_birth' => $this->faker->dateTimeBetween('-50 years', '-18 years'),
-			/*
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('middle_name')->nullable();
-            $table->string('email')->unique();
-            $table->string('phone')->nullable();
-            $table->string('trn')->nullable();
-            $table->string('nationality')->nullable();
-            $table->string('marital_status')->nullable();
-            $table->string('age_type')->nullable();
-            $table->string('medical_history')->nullable();
-            $table->enum('sex', ['male', 'female', 'other'])->nullable();
-            $table->date('date_of_birth')->nullable();
-            $table->string('photo')->nullable();
-            $table->enum('is_active', ['active', 'inactive'])->default('active');
-            $table->string('qr_code')->nullable();
-            $table->enum('type', ['RESIDENT', 'STAFF', 'VISITORS'])->default('RESIDENT');*/
-
 			'nationality' => $this->faker->country(),
-			'marital_status' => $this->faker->randomElement(['single', 'married', 'divorced']),
-			'age_type' => $this->faker->randomElement(['adult', 'child']),
+			'marital_status' => $this->faker->randomElement(['SINGLE', 'DIVORCED', 'MARRIED']),
+			'age_type' => $this->faker->randomElement(['ADULT', 'CHILD', 'SENIOR']),
 			'medical_history' => $this->faker->sentence(),
 			'sex' => $this->faker->randomElement(['male', 'female', 'other']),
 			'photo' => $this->faker->imageUrl(640, 480, 'people'),

@@ -19,8 +19,8 @@ class OccupancyTrendChart extends ChartWidget
         $startDate = Carbon::now()->subDays(30);
         $endDate = Carbon::now();
 
-        $dailyCheckIns = DB::table('check_ins')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+        $dailyCheckIns = DB::connection("tenant")->table('check_ins')
+            ->select(DB::connection("tenant")->raw('DATE(created_at) as date'), DB::connection("tenant")->raw('count(*) as count'))
             ->where('created_at', '>=', $startDate)
             ->groupBy('date')
             ->orderBy('date')
