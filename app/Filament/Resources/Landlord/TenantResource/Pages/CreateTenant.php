@@ -19,9 +19,9 @@ class CreateTenant extends CreateRecord
     {
         // Format subdomain based on domain_type
         if ($data['domain_type'] === 'subdomain') {
-			$sub = env('APP_DOMAIN');
+            $sub = env('APP_DOMAIN');
             // Store only the subdomain part, not the full domain
-            $data['domain'] = Str::snake($data['domain']).'.' . $sub;
+            $data['domain'] = Str::slug($data['domain']) . '.' . $sub;
         }
         
         // Ensure database name follows the standard format

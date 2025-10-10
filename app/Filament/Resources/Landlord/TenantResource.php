@@ -33,7 +33,7 @@ class TenantResource extends Resource
                     ->live(onBlur: true)
                     ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, ?string $state) {
                         if (! $get('is_domain_manually_changed')) {
-                            $subdomain = Str::snake($state);
+                            $subdomain = Str::slug($state);
                             $set('domain', $subdomain);
                         }
                         if (! $get('is_database_manually_changed')) {
@@ -66,7 +66,7 @@ class TenantResource extends Resource
                     ->dehydrated(true) // Always include in form submission
                     ->helperText(function (Forms\Get $get) {
                         if ($get('domain_type') === 'subdomain') {
-                            return 'Auto-generated: ' . Str::snake($get('name')) . '.' . config('app.domain');
+                            return 'Auto-generated: ' . Str::slug($get('name')) . '.' . config('app.domain');
                         }
                         return 'Enter your custom domain';
                     })
