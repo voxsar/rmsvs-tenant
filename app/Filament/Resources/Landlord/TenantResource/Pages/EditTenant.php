@@ -20,7 +20,7 @@ class EditTenant extends EditRecord
         // Format subdomain based on domain_type
         if ($data['domain_type'] === 'subdomain') {
             // Store only the subdomain part, not the full domain
-            $data['domain'] = Str::snake($data['domain']);
+            $data['domain'] = Str::slug($data['domain']);
         }
         
         // Ensure database name follows the standard format
