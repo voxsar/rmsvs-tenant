@@ -110,14 +110,29 @@ class TenantResource extends Resource
                     ->searchable()
                     ->label('Domain')
                     ->formatStateUsing(function ($state, $record = null) {
-                        if (!$record || !$state) {
+                        if (! $record || blank($state)) {
                             return '';
                         }
-                        
-                        $domainParts = explode('.', $state);
-                        if (count($domainParts) <= 2) {
-                            return $state . '.' . config('app.domain');
+
+                        $state = trim($state);
+                        $baseDomain = config('app.domain');
+
+                        if (! $baseDomain) {
+                            return $state;
                         }
+
+                        if ($record->domain_type !== 'subdomain') {
+                            return $state;
+                        }
+
+                        if (Str::endsWith($state, $baseDomain)) {
+                            return $state;
+                        }
+
+                        if (! Str::contains($state, '.')) {
+                            return $state . '.' . $baseDomain;
+                        }
+
                         return $state;
                     }),
                 Tables\Columns\TextColumn::make('custom_domain')
