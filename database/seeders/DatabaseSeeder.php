@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
 
     	User::factory()->create([
 			'name' => 'Miyuru Dharmage',
-			'email' => 'voxsar@gmail.com',
+			'email' => 'admin@solennico.com',
 			'password' => bcrypt('12345678')
 	   ]);
 
@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
 			[
 				'name'=> 'landlord',
 				'domain'=> env('APP_DOMAIN'),
-				'database'=> 'tenant_db',
+				'database'=> 'rms_tenant_main_db',
 			]
 		]);
     }

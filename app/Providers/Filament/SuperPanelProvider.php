@@ -34,7 +34,7 @@ class SuperPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages/Landlord'), for: 'App\\Filament\\Pages\\Landlord')
             ->pages([
             ])
-            ->widgets([
+            ->widgets([ 
             ])
             ->middleware([
                 EncryptCookies::class,
