@@ -172,10 +172,15 @@ class EditTenant extends EditRecord
 			Log::info('Database created successfully');
 			
 			// Artisan::call with correct syntax
-			Artisan::call('tenants:artisan', [
-				'--tenant' => $this->record->id,
-				'artisanCommand' => '"migrate:fresh --path=database/migrations/tenant --database=tenant"'
-			]);
+                        Artisan::call('tenants:artisan', [
+                                '--tenant' => $this->record->id,
+                                'artisanCommand' => 'migrate:fresh --path=database/migrations/tenant --database=tenant'
+                        ]);
+
+                        Artisan::call('tenants:artisan', [
+                                '--tenant' => $this->record->id,
+                                'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder'
+                        ]);
 			
 			// Redirect to the tenant's dashboard
 			$this->redirect($this->getResource()::getUrl('index'));
