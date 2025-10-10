@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Tenant;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\ScanController;
@@ -16,8 +15,16 @@ use App\Http\Controllers\ScanController;
 |
 */
 
-Route::get('/', function() {
-	return Tenant::current()->name == "landlord" ? redirect()->to('super') : redirect()->to('admin');
+Route::get('/', function () {
+    $currentTenant = tenant();
+
+    if (! $currentTenant) {
+        return redirect()->to('super');
+    }
+
+    return $currentTenant->name === 'landlord'
+        ? redirect()->to('super')
+        : redirect()->to('admin');
 });
 
 Route::middleware('tenant')->group(function() {
