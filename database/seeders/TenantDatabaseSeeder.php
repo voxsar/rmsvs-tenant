@@ -7,6 +7,7 @@ use Spatie\Permission\Exceptions\PermissionAlreadyExists;
 use Illuminate\Database\Seeder;
 use App\Models\Guest;
 use App\Models\Meal;
+use App\Models\Tenant;
 use App\Models\Room;
 use App\Models\Consumable;
 use App\Models\Role;
@@ -35,39 +36,11 @@ class TenantDatabaseSeeder extends Seeder
         // Create roles with permissions
         $this->createRoles();
 		
-		Room::insert([
-			[
-				"room_no" => "101",
-				"building" => "B1",
-				"floor" => 01,
-			],
-			[
-				"room_no" => "102",
-				"building" => "B1",
-				"floor" => 01,
-			],
-			[
-				"room_no" => "201",
-				"building" => "B1",
-				"floor" => 02,
-			],
-			[
-				"room_no" => "202",
-				"building" => "B1",
-				"floor" => 02,
-			],
-			[
-				"room_no" => "101",
-				"building" => "B2",
-				"floor" => 01,
-			],
-		]);
-
-		Guest::factory(10)->create([
-			'type' => 'RESIDENT',
-			'is_active' => 'active',
-			'qr_code' => 'https://example.com/qr-code.png',
-		]);
+                Guest::factory(10)->create([
+                        'type' => 'RESIDENT',
+                        'is_active' => 'active',
+                        'qr_code' => 'https://example.com/qr-code.png',
+                ]);
 
 		Meal::insert([
 			[

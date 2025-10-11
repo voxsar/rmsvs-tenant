@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Landlord\TenantResource\Pages;
 
 use App\Filament\Resources\Landlord\TenantResource;
+use App\Models\Room;
+use DigitalOceanV2;
 use App\Models\UserTenant;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
@@ -15,11 +17,33 @@ use Illuminate\Support\Str;
 class CreateTenant extends CreateRecord
 {
     protected static string $resource = TenantResource::class;
-
+  
     /**
      * @var array<string, mixed>
      */
-    protected array $adminCredentials = [];
+    protected array $adminCredentials = [];  
+  
+    protected array $initialRoomDefinitions = [];
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $this->initialRoomDefinitions = collect($data['initial_rooms'] ?? request()->input('data.initial_rooms', []))
+            ->filter(fn ($room) => filled($room['room_no'] ?? null))
+            ->map(fn ($room) => [
+                'room_no' => $room['room_no'],
+                'building' => $room['building'] ?? null,
+                'floor' => $room['floor'] ?? null,
+                'status' => $room['status'] ?? 'available',
+                'max_occupants' => isset($room['max_occupants']) && $room['max_occupants'] !== ''
+                    ? (int) $room['max_occupants']
+                    : 1,
+                'description' => $room['description'] ?? null,
+            ])
+            ->values()
+            ->all();
+
+        unset($data['initial_rooms']);
+    }
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
