@@ -4,17 +4,14 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Spatie\Permission\Exceptions\PermissionAlreadyExists;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Database\Seeder;
-use App\Models\UserTenant as User;
 use App\Models\Guest;
 use App\Models\Meal;
 use App\Models\Tenant;
+use App\Models\Room;
 use App\Models\Consumable;
-use App\Models\MealRecord;
 use App\Models\Role;
 use App\Models\Permission;
-use App\Models\ModelHasRole;
 use Illuminate\Support\Facades\Log;
 
 class TenantDatabaseSeeder extends Seeder
@@ -180,8 +177,6 @@ class TenantDatabaseSeeder extends Seeder
 			],
 		 ]);
         
-		 // Create default admin user
-		 $this->createAdminUser();
     }
     
     /**
@@ -332,22 +327,4 @@ class TenantDatabaseSeeder extends Seeder
         $scanner->givePermissionTo($scannerPermissions);
     }
     
-    /**
-     * Create default admin user
-     */
-    private function createAdminUser()
-    {
-        $user = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password')
-        ]);
-        
-		// Assign the super-admin role to the user
-		$mHR = ModelHasRole::create([
-			'role_id' => 1,
-			'model_type' => 'App\Models\UserTenant',
-			'model_id' => $user->id,
-		]);
-    }
 }

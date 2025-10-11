@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Landlord;
 
 use App\Filament\Resources\Landlord\TenantResource\Pages;
-use App\Filament\Resources\Landlord\TenantResource\RelationManagers;
 use App\Filament\Table\Actions\DeleteBulkAction;
 use App\Models\Tenant;
 use Filament\Forms;
@@ -11,9 +10,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\BulkAction;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
 class TenantResource extends Resource
@@ -33,21 +29,16 @@ class TenantResource extends Resource
                     ->live(onBlur: true)
                     ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, ?string $state) {
                         if (! $get('is_domain_manually_changed')) {
-                            $subdomain = Str::slug($state);
-                            $set('domain', $subdomain);
+                            $set('domain', Str::slug($state));
                         }
                         if (! $get('is_database_manually_changed')) {
-                            $database = Str::snake($state) . '_db';
-                            $set('database', $database);
+                            $set('database', Str::snake($state) . '_db');
                         }
                     }),
-                
-                Forms\Components\Hidden::make('is_domain_manually_changed')
-                    ->default(false),
-                
-                Forms\Components\Hidden::make('is_database_manually_changed')
-                    ->default(false),
-                
+
+                Forms\Components\Hidden::make('is_domain_manually_changed')->default(false),
+                Forms\Components\Hidden::make('is_database_manually_changed')->default(false),
+
                 Forms\Components\Select::make('domain_type')
                     ->options([
                         'subdomain' => 'Subdomain (under ' . config('app.domain') . ')',
@@ -56,41 +47,37 @@ class TenantResource extends Resource
                     ->default('subdomain')
                     ->reactive()
                     ->required(),
-                
+
                 Forms\Components\TextInput::make('domain')
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true)
                     ->placeholder('subdomain')
                     ->disabled(fn (Forms\Get $get) => $get('domain_type') === 'subdomain')
-                    ->dehydrated(true) // Always include in form submission
+                    ->dehydrated(true)
                     ->helperText(function (Forms\Get $get) {
-                        if ($get('domain_type') === 'subdomain') {
-                            return 'Auto-generated: ' . Str::slug($get('name')) . '.' . config('app.domain');
-                        }
-                        return 'Enter your custom domain';
+                        return $get('domain_type') === 'subdomain'
+                            ? 'Auto-generated: ' . Str::slug($get('name')) . '.' . config('app.domain')
+                            : 'Enter your custom domain';
                     })
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function (Forms\Set $set) {
-                        $set('is_domain_manually_changed', true);
-                    }),
-                
+                    ->afterStateUpdated(fn (Forms\Set $set) => $set('is_domain_manually_changed', true)),
+
                 Forms\Components\TextInput::make('custom_domain')
                     ->required()
                     ->maxLength(255)
                     ->visible(fn (Forms\Get $get) => $get('domain_type') === 'domain'),
-                
+
                 Forms\Components\TextInput::make('database')
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true)
                     ->placeholder('tenant_db')
-                    ->disabled(true) // Always disabled, auto-generated
+                    ->disabled(true)
                     ->dehydrated(true)
-                    ->helperText(function (Forms\Get $get) {
-                        return 'Auto-generated: ' . Str::snake($get('name')) . '_db';
-                    }),
+                    ->helperText(fn (Forms\Get $get) => 'Auto-generated: ' . Str::snake($get('name')) . '_db'),
 
+                // 🏠 Initial Rooms Section
                 Forms\Components\Repeater::make('initial_rooms')
                     ->label('Initial Rooms')
                     ->schema([
@@ -98,10 +85,8 @@ class TenantResource extends Resource
                             ->label('Room Number')
                             ->maxLength(255)
                             ->required(),
-                        Forms\Components\TextInput::make('building')
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('floor')
-                            ->maxLength(255),
+                        Forms\Components\TextInput::make('building')->maxLength(255),
+                        Forms\Components\TextInput::make('floor')->maxLength(255),
                         Forms\Components\Select::make('status')
                             ->options([
                                 'available' => 'Available',
@@ -113,12 +98,40 @@ class TenantResource extends Resource
                             ->numeric()
                             ->minValue(1)
                             ->default(1),
-                        Forms\Components\Textarea::make('description')
-                            ->rows(2),
+                        Forms\Components\Textarea::make('description')->rows(2),
                     ])
                     ->collapsed()
                     ->dehydrated(false)
                     ->createItemButtonLabel('Add Room'),
+
+                // 👤 Administrator Section
+                Forms\Components\Section::make('Administrator')
+                    ->description('Set up the initial administrator for this tenant.')
+                    ->schema([
+                        Forms\Components\TextInput::make('admin_name')
+                            ->label('Admin Name')
+                            ->required(fn (string $context) => $context === 'create')
+                            ->maxLength(255)
+                            ->dehydrated(false),
+                        Forms\Components\TextInput::make('admin_email')
+                            ->label('Admin Email')
+                            ->email()
+                            ->required(fn (string $context) => $context === 'create')
+                            ->maxLength(255)
+                            ->dehydrated(false),
+                        Forms\Components\TextInput::make('admin_password')
+                            ->label('Admin Password')
+                            ->password()
+                            ->required(fn (string $context) => $context === 'create')
+                            ->confirmed()
+                            ->dehydrated(false),
+                        Forms\Components\TextInput::make('admin_password_confirmation')
+                            ->label('Confirm Password')
+                            ->password()
+                            ->required(fn (string $context) => $context === 'create')
+                            ->dehydrated(false),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -126,62 +139,26 @@ class TenantResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->sortable()
-                    ->searchable()
-                    ->label('ID'),
-                Tables\Columns\TextColumn::make('name')
-                    ->sortable()
-                    ->searchable()
-                    ->label('Name'),
+                Tables\Columns\TextColumn::make('id')->sortable()->searchable()->label('ID'),
+                Tables\Columns\TextColumn::make('name')->sortable()->searchable()->label('Name'),
                 Tables\Columns\TextColumn::make('domain')
                     ->sortable()
                     ->searchable()
                     ->label('Domain')
                     ->formatStateUsing(function ($state, $record = null) {
-                        if (! $record || blank($state)) {
-                            return '';
-                        }
-
-                        $state = trim($state);
+                        if (! $record || blank($state)) return '';
                         $baseDomain = config('app.domain');
-
-                        if (! $baseDomain) {
-                            return $state;
-                        }
-
-                        if ($record->domain_type !== 'subdomain') {
-                            return $state;
-                        }
-
-                        if (Str::endsWith($state, $baseDomain)) {
-                            return $state;
-                        }
-
-                        if (! Str::contains($state, '.')) {
-                            return $state . '.' . $baseDomain;
-                        }
-
+                        if ($record->domain_type !== 'subdomain') return $state;
+                        if (! Str::contains($state, '.')) return $state . '.' . $baseDomain;
                         return $state;
                     }),
                 Tables\Columns\TextColumn::make('custom_domain')
                     ->sortable()
                     ->searchable()
                     ->label('Custom Domain')
-                    ->visible(function ($record) {
-                        return $record && !empty($record->custom_domain);
-                    }),
-                Tables\Columns\TextColumn::make('database')
-                    ->sortable()
-                    ->searchable()
-                    ->label('Database'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->sortable()
-                    ->searchable()
-                    ->dateTime()
-            ])
-            ->filters([
-                //
+                    ->visible(fn ($record) => $record && !empty($record->custom_domain)),
+                Tables\Columns\TextColumn::make('database')->sortable()->searchable()->label('Database'),
+                Tables\Columns\TextColumn::make('created_at')->sortable()->dateTime(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -191,13 +168,6 @@ class TenantResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

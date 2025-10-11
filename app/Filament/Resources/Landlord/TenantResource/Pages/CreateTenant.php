@@ -5,17 +5,24 @@ namespace App\Filament\Resources\Landlord\TenantResource\Pages;
 use App\Filament\Resources\Landlord\TenantResource;
 use App\Models\Room;
 use DigitalOceanV2;
+use App\Models\UserTenant;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CreateTenant extends CreateRecord
 {
     protected static string $resource = TenantResource::class;
-
+  
+    /**
+     * @var array<string, mixed>
+     */
+    protected array $adminCredentials = [];  
+  
     protected array $initialRoomDefinitions = [];
 
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -36,6 +43,22 @@ class CreateTenant extends CreateRecord
             ->all();
 
         unset($data['initial_rooms']);
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $this->adminCredentials = [
+            'name' => $data['admin_name'] ?? null,
+            'email' => $data['admin_email'] ?? null,
+            'password' => $data['admin_password'] ?? null,
+        ];
+
+        unset(
+            $data['admin_name'],
+            $data['admin_email'],
+            $data['admin_password'],
+            $data['admin_password_confirmation'],
+        );
 
         // Format subdomain based on domain_type
         if ($data['domain_type'] === 'subdomain') {
@@ -50,130 +73,62 @@ class CreateTenant extends CreateRecord
         return $data;
     }
 
-	//after creating a tenant, redirect to the tenant's dashboard
-	protected function afterCreate(): void
-	{
-		try{
-			//goto createTenant;
-			//client
-			/*$client = new DigitalOceanV2\Client();
-			$client->authenticate(config('services.digitalocean.token'));
+    //after creating a tenant, redirect to the tenant's dashboard
+    protected function afterCreate(): void
+    {
+        try {
+            //createTenant:
+            //create the database
+            DB::statement('CREATE DATABASE IF NOT EXISTS ' . $this->record->database);
 
-			$domainRecord = $client->domainRecord();
-			$records = $domainRecord->getAll(config('services.digitalocean.domain'));
-			
-			// Get the subdomain from the domain field
-			$subdomain = $this->record->domain;
-			$sub = env('APP_DOMAIN');
-			$subdomain = str_replace('.' . $sub, '', $subdomain);
-			$recordExists = false;
-			
-			// Check if the subdomain record exists
-			foreach ($records as $record) {
-				Log::info('Record Name: ' . $record->name);
-				if ($record->name == $subdomain) {
-					$recordExists = true;
-					break;
-				}
-			}
+            //call artisan command to create the database
+            // Artisan::call with correct syntax
+            Log::info([
+                'artisanCommand' => 'migrate:fresh --path=database/migrations/tenant --database=tenant',
+                '--tenant' => $this->record->id,
+            ]);
+            Artisan::call('tenants:artisan', [
+                'artisanCommand' => 'migrate:fresh --path=database/migrations/tenant --database=tenant',
+                '--tenant' => $this->record->id,
+            ]);
+            Log::info([
+                'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder',
+                '--tenant' => $this->record->id,
+            ]);
+            //php artisan tenants:artisan "migrate --database=tenant --seed"
+            Artisan::call('tenants:artisan', [
+                'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder',
+                '--tenant' => $this->record->id,
+            ]);
+            Log::info('permission:cache-reset');
+            //php artisan permission:cache-reset
+            Artisan::call('permission:cache-reset');
+            app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
-			// Create or update the subdomain record
-			if (!$recordExists) {
-				$domainRecord->create(config('services.digitalocean.domain'), 'A', $subdomain, config('services.digitalocean.ip'));
-			}
-			
-			// If this tenant has a custom domain, create a CNAME record that points to the subdomain
-			if ($this->record->domain_type === 'domain' && !empty($this->record->custom_domain)) {
-				// Create a CNAME record for the custom domain pointing to the subdomain
-				// First we need to determine the full subdomain
-				$fullSubdomain = $subdomain . '.' . config('services.digitalocean.domain');
-				
-				// For simplicity, we'll assume the custom domain doesn't exist in DO
-				// In a real application, you might want to check and update existing records
-				try {
-					// Get the domain and subdomain parts from the custom domain
-					$customDomainParts = explode('.', $this->record->custom_domain);
-					$customSubdomain = $customDomainParts[0];
-					$customDomain = implode('.', array_slice($customDomainParts, 1));
-					
-					// Check if we can manage this domain in DO
-					$domainExists = false;
-					try {
-						$domains = $client->domain()->getAll();
-						foreach ($domains as $domain) {
-							if ($domain->name === $customDomain) {
-								$domainExists = true;
-								break;
-							}
-						}
-						
-						if ($domainExists) {
-							// Create CNAME record in the custom domain pointing to our subdomain
-							$domainRecord->create($customDomain, 'CNAME', $customSubdomain, $fullSubdomain);
-							Log::info("Created CNAME record for {$this->record->custom_domain} pointing to {$fullSubdomain}");
-						} else {
-							Log::warning("Could not create CNAME record - domain {$customDomain} is not managed in DigitalOcean");
-						}
-					} catch (\Exception $e) {
-						Log::error("Error creating CNAME record: " . $e->getMessage());
-					}
-				} catch (\Exception $e) {
-					Log::error("Error processing custom domain: " . $e->getMessage());
-				}
-			}*/
-			//createTenant:
-			//create the database
-			DB::statement('CREATE DATABASE IF NOT EXISTS ' . $this->record->database);
-			
-			//call artisan command to create the database
-			// Artisan::call with correct syntax
-			Log::info([
-				'artisanCommand' => 'migrate:fresh --path=database/migrations/tenant --database=tenant',
-				'--tenant' => $this->record->id
-			]);
-			Artisan::call('tenants:artisan', [
-				'artisanCommand' => 'migrate:fresh --path=database/migrations/tenant --database=tenant',
-				'--tenant' => $this->record->id
-			]);
-			Log::info([
-				'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder',
-				'--tenant' => $this->record->id
-			]);
-			//php artisan tenants:artisan "migrate --database=tenant --seed"
-                        Artisan::call('tenants:artisan', [
-                                'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder',
-                                '--tenant' => $this->record->id
-                        ]);
+            $adminData = $this->adminCredentials;
 
-                        if (! empty($this->initialRoomDefinitions)) {
-                                $rooms = collect($this->initialRoomDefinitions)
-                                        ->map(fn (array $room) => [
-                                                ...$room,
-                                                'status' => $room['status'] ?? 'available',
-                                                'max_occupants' => $room['max_occupants'] ?? 1,
-                                                'created_at' => now(),
-                                                'updated_at' => now(),
-                                        ])
-                                        ->all();
+            if (! blank($adminData['email']) && ! blank($adminData['password'])) {
+                $this->record->run(function () use ($adminData) {
+                    $user = UserTenant::create([
+                        'name' => $adminData['name'] ?? $adminData['email'],
+                        'email' => $adminData['email'],
+                        'password' => Hash::make($adminData['password']),
+                    ]);
 
-                                if (! empty($rooms)) {
-                                        $this->record->run(fn () => Room::insert($rooms));
-                                }
-                        }
-                        Log::info("permission:cache-reset");
-                        //php artisan permission:cache-reset
-                        Artisan::call('permission:cache-reset');
-                        app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
-			//$this->redirect($this->getResource()::getUrl('index'));
-		}catch (\Exception $e) {
-			Log::error('Error creating tenant: ' . $e->getMessage());
-		}
-	}
+                    $user->assignRole('Manager');
+                });
+            }
 
-	protected function getActions(): array
-	{
-		return [
-			Actions\CreateAction::make(),
-		];
-	}
+            $this->adminCredentials = [];
+        } catch (\Exception $e) {
+            Log::error('Error creating tenant: ' . $e->getMessage());
+        }
+    }
+
+    protected function getActions(): array
+    {
+        return [
+            Actions\CreateAction::make(),
+        ];
+    }
 }
