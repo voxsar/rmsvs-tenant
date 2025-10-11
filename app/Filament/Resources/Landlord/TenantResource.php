@@ -90,6 +90,34 @@ class TenantResource extends Resource
                     ->helperText(function (Forms\Get $get) {
                         return 'Auto-generated: ' . Str::snake($get('name')) . '_db';
                     }),
+
+                Forms\Components\Section::make('Administrator')
+                    ->description('Set up the initial administrator for this tenant.')
+                    ->schema([
+                        Forms\Components\TextInput::make('admin_name')
+                            ->label('Admin Name')
+                            ->required(fn (string $context) => $context === 'create')
+                            ->maxLength(255)
+                            ->dehydrated(false),
+                        Forms\Components\TextInput::make('admin_email')
+                            ->label('Admin Email')
+                            ->email()
+                            ->required(fn (string $context) => $context === 'create')
+                            ->maxLength(255)
+                            ->dehydrated(false),
+                        Forms\Components\TextInput::make('admin_password')
+                            ->label('Admin Password')
+                            ->password()
+                            ->required(fn (string $context) => $context === 'create')
+                            ->confirmed()
+                            ->dehydrated(false),
+                        Forms\Components\TextInput::make('admin_password_confirmation')
+                            ->label('Confirm Password')
+                            ->password()
+                            ->required(fn (string $context) => $context === 'create')
+                            ->dehydrated(false),
+                    ])
+                    ->columns(2),
             ]);
     }
 
