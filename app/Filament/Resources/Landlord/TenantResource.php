@@ -90,6 +90,35 @@ class TenantResource extends Resource
                     ->helperText(function (Forms\Get $get) {
                         return 'Auto-generated: ' . Str::snake($get('name')) . '_db';
                     }),
+
+                Forms\Components\Repeater::make('initial_rooms')
+                    ->label('Initial Rooms')
+                    ->schema([
+                        Forms\Components\TextInput::make('room_no')
+                            ->label('Room Number')
+                            ->maxLength(255)
+                            ->required(),
+                        Forms\Components\TextInput::make('building')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('floor')
+                            ->maxLength(255),
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                'available' => 'Available',
+                                'occupied' => 'Occupied',
+                                'maintenance' => 'Maintenance',
+                            ])
+                            ->default('available'),
+                        Forms\Components\TextInput::make('max_occupants')
+                            ->numeric()
+                            ->minValue(1)
+                            ->default(1),
+                        Forms\Components\Textarea::make('description')
+                            ->rows(2),
+                    ])
+                    ->collapsed()
+                    ->dehydrated(false)
+                    ->createItemButtonLabel('Add Room'),
             ]);
     }
 

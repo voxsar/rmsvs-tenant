@@ -2,21 +2,41 @@
 
 namespace App\Filament\Resources\Landlord\TenantResource\Pages;
 
-use DigitalOceanV2;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Artisan;
 use App\Filament\Resources\Landlord\TenantResource;
+use App\Models\Room;
+use DigitalOceanV2;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CreateTenant extends CreateRecord
 {
     protected static string $resource = TenantResource::class;
 
+    protected array $initialRoomDefinitions = [];
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        $this->initialRoomDefinitions = collect($data['initial_rooms'] ?? request()->input('data.initial_rooms', []))
+            ->filter(fn ($room) => filled($room['room_no'] ?? null))
+            ->map(fn ($room) => [
+                'room_no' => $room['room_no'],
+                'building' => $room['building'] ?? null,
+                'floor' => $room['floor'] ?? null,
+                'status' => $room['status'] ?? 'available',
+                'max_occupants' => isset($room['max_occupants']) && $room['max_occupants'] !== ''
+                    ? (int) $room['max_occupants']
+                    : 1,
+                'description' => $room['description'] ?? null,
+            ])
+            ->values()
+            ->all();
+
+        unset($data['initial_rooms']);
+
         // Format subdomain based on domain_type
         if ($data['domain_type'] === 'subdomain') {
             $sub = env('APP_DOMAIN');
@@ -120,14 +140,30 @@ class CreateTenant extends CreateRecord
 				'--tenant' => $this->record->id
 			]);
 			//php artisan tenants:artisan "migrate --database=tenant --seed"
-			Artisan::call('tenants:artisan', [
-				'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder',
-				'--tenant' => $this->record->id
-			]);
-			Log::info("permission:cache-reset");
-			//php artisan permission:cache-reset
-			Artisan::call('permission:cache-reset');
-			app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+                        Artisan::call('tenants:artisan', [
+                                'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder',
+                                '--tenant' => $this->record->id
+                        ]);
+
+                        if (! empty($this->initialRoomDefinitions)) {
+                                $rooms = collect($this->initialRoomDefinitions)
+                                        ->map(fn (array $room) => [
+                                                ...$room,
+                                                'status' => $room['status'] ?? 'available',
+                                                'max_occupants' => $room['max_occupants'] ?? 1,
+                                                'created_at' => now(),
+                                                'updated_at' => now(),
+                                        ])
+                                        ->all();
+
+                                if (! empty($rooms)) {
+                                        $this->record->run(fn () => Room::insert($rooms));
+                                }
+                        }
+                        Log::info("permission:cache-reset");
+                        //php artisan permission:cache-reset
+                        Artisan::call('permission:cache-reset');
+                        app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 			//$this->redirect($this->getResource()::getUrl('index'));
 		}catch (\Exception $e) {
 			Log::error('Error creating tenant: ' . $e->getMessage());
