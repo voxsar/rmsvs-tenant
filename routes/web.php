@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Tenant;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\ScanController;
@@ -16,7 +17,13 @@ use App\Http\Controllers\ScanController;
 */
 
 Route::get('/', function () {
-    $currentTenant = tenant();
+	$tenant = Tenant::current();
+
+	if(!$tenant){
+		return redirect()->to('admin');
+	}
+
+    $currentTenant = $tenant;
 
     if (! $currentTenant) {
         return redirect()->to('super');

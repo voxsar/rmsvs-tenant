@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -57,7 +58,13 @@ class Room extends Model
         
         $pivotRecord = $guestRoom->pivot;
         
-        $qrPath = 'qrcodes/guest_rooms/';
+		$tenant = Tenant::current();
+
+		if(!$tenant){
+			$tenant = "default";
+		}
+		
+        $qrPath = $tenant.'/qrcodes/guest_rooms/';
         $fileName = 'guest_' . $guest->id . '_room_' . $this->id .'_checkin_'.$pivotRecord->id. '.svg';
         
         // Simplified QR code content with just the essential IDs

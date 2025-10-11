@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -80,7 +81,13 @@ class Guest extends Model
 
     public function generateQrCode()
     {
-        $qrPath = 'qrcodes/guests/';
+		$tenant = Tenant::current();
+
+		if(!$tenant){
+			$tenant = "default";
+		}
+
+        $qrPath = $tenant.'/qrcodes/guests/';
         $fileName = 'guest_' . $this->id . '.png';
         
         // QR code content - use the guest.show route which is now properly defined
