@@ -35,7 +35,7 @@ class EditTenant extends EditRecord
             Actions\DeleteAction::make()
 			->before(function () {
 				// ...
-				$client = new DigitalOceanV2\Client();
+				/*$client = new DigitalOceanV2\Client();
 				$client->authenticate(config('services.digitalocean.token'));
 
 				$domainRecord = $client->domainRecord();
@@ -87,8 +87,13 @@ class EditTenant extends EditRecord
 					} catch (\Exception $e) {
 						Log::error("Error processing custom domain during deletion: " . $e->getMessage());
 					}
-				}
-
+				}*/
+				//run artisan backup:run
+				Artisan::call('tenants:artisan', [
+					'--tenant' => $this->record->id,
+					'artisanCommand' => 'backup:run --only-db'
+				]);
+				// Drop the tenant's database
 				DB::statement('DROP DATABASE IF EXISTS ' . $this->record->database);
 			}),
         ];
@@ -99,7 +104,7 @@ class EditTenant extends EditRecord
 	{
 		try {
 			//client
-			$client = new DigitalOceanV2\Client();
+			/*$client = new DigitalOceanV2\Client();
 			$client->authenticate(config('services.digitalocean.token'));
 
 			$domainRecord = $client->domainRecord();
@@ -165,22 +170,32 @@ class EditTenant extends EditRecord
 				} catch (\Exception $e) {
 					Log::error("Error processing custom domain: " . $e->getMessage());
 				}
-			}
+			}*/
 			
 			DB::statement('CREATE DATABASE IF NOT EXISTS ' . $this->record->database);
 			
 			Log::info('Database created successfully');
+
+			Log::info('Running migrations and seeders for tenant ID: ' . $this->record->id, [
+					'--tenant' => $this->record->id,
+					'artisanCommand' => 'migrate:fresh --path=database/migrations/tenant --database=tenant'
+			]);
+
+			Log::info('Running migrations and seeders for tenant ID: ' . $this->record->id, [
+					'--tenant' => $this->record->id,
+					'artisanCommand' => 'migrate:fresh --path=database/migrations/tenant --database=tenant'
+			]);
 			
 			// Artisan::call with correct syntax
-                        Artisan::call('tenants:artisan', [
-                                '--tenant' => $this->record->id,
-                                'artisanCommand' => 'migrate:fresh --path=database/migrations/tenant --database=tenant'
-                        ]);
+			Artisan::call('tenants:artisan', [
+					'--tenant' => $this->record->id,
+					'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder'
+			]);
 
-                        Artisan::call('tenants:artisan', [
-                                '--tenant' => $this->record->id,
-                                'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder'
-                        ]);
+			Artisan::call('tenants:artisan', [
+					'--tenant' => $this->record->id,
+					'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder'
+			]);
 			
 			// Redirect to the tenant's dashboard
 			$this->redirect($this->getResource()::getUrl('index'));

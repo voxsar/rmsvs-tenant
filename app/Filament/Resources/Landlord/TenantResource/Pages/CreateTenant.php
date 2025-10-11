@@ -36,7 +36,7 @@ class CreateTenant extends CreateRecord
 		try{
 			//goto createTenant;
 			//client
-			$client = new DigitalOceanV2\Client();
+			/*$client = new DigitalOceanV2\Client();
 			$client->authenticate(config('services.digitalocean.token'));
 
 			$domainRecord = $client->domainRecord();
@@ -100,7 +100,7 @@ class CreateTenant extends CreateRecord
 				} catch (\Exception $e) {
 					Log::error("Error processing custom domain: " . $e->getMessage());
 				}
-			}
+			}*/
 			//createTenant:
 			//create the database
 			DB::statement('CREATE DATABASE IF NOT EXISTS ' . $this->record->database);
@@ -127,6 +127,7 @@ class CreateTenant extends CreateRecord
 			Log::info("permission:cache-reset");
 			//php artisan permission:cache-reset
 			Artisan::call('permission:cache-reset');
+			app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 			//$this->redirect($this->getResource()::getUrl('index'));
 		}catch (\Exception $e) {
 			Log::error('Error creating tenant: ' . $e->getMessage());
