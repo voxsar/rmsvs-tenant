@@ -37,9 +37,32 @@ class MultiGuestCheckIn extends Page
                         Select::make('guest_ids')
                             ->label('Guests')
                             ->multiple()
-                            ->options(Guest::query()->orderBy('first_name')->get()->mapWithKeys(fn (Guest $guest) => [$guest->id => "{$guest->first_name} {$guest->last_name}"]))
                             ->searchable()
-                            ->preload()
+                            ->getSearchResultsUsing(function (string $search): array {
+                                return Guest::query()
+                                    ->when($search, function ($query) use ($search) {
+                                        $query->where(function ($query) use ($search) {
+                                            $query->where('first_name', 'like', "%{$search}%")
+                                                ->orWhere('last_name', 'like', "%{$search}%")
+                                                ->orWhere('email', 'like', "%{$search}%");
+                                        });
+                                    })
+                                    ->orderBy('first_name')
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn (Guest $guest): array => [
+                                        $guest->id => $this->formatGuestName($guest),
+                                    ])
+                                    ->toArray();
+                            })
+                            ->getOptionLabelsUsing(fn (array $values): array => Guest::query()
+                                ->whereIn('id', $values)
+                                ->orderBy('first_name')
+                                ->get()
+                                ->mapWithKeys(fn (Guest $guest): array => [
+                                    $guest->id => $this->formatGuestName($guest),
+                                ])
+                                ->toArray())
                             ->required(),
                         DateTimePicker::make('date_of_arrival')
                             ->required(),
@@ -47,8 +70,33 @@ class MultiGuestCheckIn extends Page
                             ->after('date_of_arrival'),
                         Select::make('room_id')
                             ->label('Room')
-                            ->options(Room::query()->orderBy('room_no')->get()->pluck('room_no', 'id'))
                             ->searchable()
+                            ->getSearchResultsUsing(function (string $search): array {
+                                return Room::query()
+                                    ->when($search, function ($query) use ($search) {
+                                        $query->where(function ($query) use ($search) {
+                                            $query->where('room_no', 'like', "%{$search}%")
+                                                ->orWhere('building', 'like', "%{$search}%")
+                                                ->orWhere('floor', 'like', "%{$search}%");
+                                        });
+                                    })
+                                    ->orderBy('room_no')
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn (Room $room): array => [
+                                        $room->id => $this->formatRoomLabel($room),
+                                    ])
+                                    ->toArray();
+                            })
+                            ->getOptionLabelUsing(function ($value): ?string {
+                                if (! $value) {
+                                    return null;
+                                }
+
+                                $room = Room::find($value);
+
+                                return $room ? $this->formatRoomLabel($room) : null;
+                            })
                             ->required()
                             ->createOptionForm([
                                 Forms\Components\TextInput::make('room_no')
@@ -122,5 +170,23 @@ class MultiGuestCheckIn extends Page
             ->send();
 
         $this->redirect(CheckInResource::getUrl('index'));
+    }
+
+    protected function formatGuestName(Guest $guest): string
+    {
+        $name = trim(collect([$guest->first_name, $guest->last_name])->filter()->implode(' '));
+
+        return $name !== '' ? $name : ($guest->email ?? 'Guest #'.$guest->id);
+    }
+
+    protected function formatRoomLabel(Room $room): string
+    {
+        $details = collect([$room->building, $room->floor])
+            ->filter(fn ($value) => filled($value))
+            ->implode(' • ');
+
+        return $details === ''
+            ? trim((string) $room->room_no)
+            : trim((string) $room->room_no).' ('.$details.')';
     }
 }
