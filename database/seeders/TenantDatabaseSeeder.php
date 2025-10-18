@@ -6,6 +6,7 @@ namespace Database\Seeders;
 use App\Models\Consumable;
 use App\Models\Guest;
 use App\Models\Meal;
+use App\Models\ScanItem;
 use App\Models\Permission;
 use App\Models\ModelHasRole;
 use App\Models\Role;
@@ -190,6 +191,50 @@ class TenantDatabaseSeeder extends Seeder
             ],
         ]);
 
+        ScanItem::insert([
+            [
+                'name' => 'Main Entrance',
+                'type' => ScanItem::TYPE_ACCESS,
+                'description' => 'Primary access scanner for the building',
+                'is_active' => true,
+                'active_period_type' => ScanItem::PERIOD_ALWAYS,
+                'active_days' => null,
+                'notify_if_missed' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Daily Breakfast',
+                'type' => ScanItem::TYPE_MEAL,
+                'description' => 'Standard breakfast service window',
+                'is_active' => true,
+                'active_period_type' => ScanItem::PERIOD_WEEKDAYS,
+                'active_days' => json_encode(['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY']),
+                'active_start_time' => '06:00:00',
+                'active_end_time' => '09:00:00',
+                'notify_if_missed' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Wellness Pack',
+                'type' => ScanItem::TYPE_CONSUMABLE,
+                'description' => 'Daily amenity pack distribution',
+                'is_active' => true,
+                'active_period_type' => ScanItem::PERIOD_CUSTOM,
+                'custom_windows' => json_encode([
+                    [
+                        'days' => ['MONDAY', 'WEDNESDAY', 'FRIDAY'],
+                        'start' => '10:00:00',
+                        'end' => '12:00:00',
+                    ],
+                ]),
+                'notify_if_missed' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
     }
 
     /**
@@ -201,7 +246,7 @@ class TenantDatabaseSeeder extends Seeder
         $resources = [
             'user', 'role', 'permission', 'guest', 'room', 'meal',
             'meal-record', 'consumable', 'check-in', 'guest-request',
-            'daily-report', 'scanner', 'transit',
+            'daily-report', 'scanner', 'transit', 'scan-item',
         ];
 
         // Define standard CRUD operations
@@ -274,6 +319,7 @@ class TenantDatabaseSeeder extends Seeder
             'view guest-request', 'create guest-request', 'update guest-request', 'delete guest-request',
             'view daily-report', 'create daily-report', 'update daily-report',
             'view scanner', 'create scanner', 'update scanner', 'delete scanner',
+            'view scan-item', 'create scan-item', 'update scan-item', 'delete scan-item',
             'view transit', 'create transit', 'update transit', 'delete transit',
             'access admin panel', 'view dashboard',
             'generate reports', 'export data',
@@ -301,6 +347,7 @@ class TenantDatabaseSeeder extends Seeder
             'view guest-request', 'create guest-request', 'update guest-request',
             'view daily-report', 'create daily-report',
             'view scanner', 'view transit', 'create transit', 'update transit',
+            'view scan-item', 'update scan-item',
             'access admin panel', 'view dashboard',
             'process check-ins', 'process check-outs',
             'scan meal qr-codes',
