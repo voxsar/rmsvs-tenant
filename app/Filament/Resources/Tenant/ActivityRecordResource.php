@@ -77,10 +77,10 @@ class ActivityRecordResource extends Resource
                 Tables\Columns\TextColumn::make('activity_type')
                     ->label('Type')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Check-In' => 'success',
-                        'Guest Request' => 'warning',
-                        'Meal Record' => 'info',
+                    ->color(fn (string $state): string => match (true) {
+                        in_array($state, ['Access', 'Check-In', 'Check-Out']) => 'success',
+                        $state === 'Guest Request' => 'warning',
+                        in_array($state, ['Meal', 'Meal Record']) => 'info',
                         default => 'gray',
                     })
                     ->sortable(),
@@ -123,9 +123,9 @@ class ActivityRecordResource extends Resource
                 Tables\Filters\SelectFilter::make('activity_type')
                     ->label('Activity Type')
                     ->options([
-                        'Check-In' => 'Check-In/Out',
+                        'Access' => 'Access',
                         'Guest Request' => 'Guest Request',
-                        'Meal Record' => 'Meal Record',
+                        'Meal' => 'Meal',
                     ]),
 
                 Tables\Filters\SelectFilter::make('status')
@@ -160,7 +160,7 @@ class ActivityRecordResource extends Resource
                     ->visible(fn () => Auth::guard('tenant')->check() && Auth::guard('tenant')->user()->can('create guest-request')),
 
                 Tables\Actions\Action::make('create_meal')
-                    ->label('New Meal Record')
+                    ->label('New Meal')
                     ->icon('heroicon-o-cake')
                     ->color('info')
                     ->url(route('filament.admin.resources.tenant.meal-records.create'))
@@ -199,7 +199,7 @@ class ActivityRecordResource extends Resource
         // Create union query using raw SQL wrapped in a proper Eloquent builder
         $checkInsQuery = CheckIn::query()
             ->select([
-                'check_ins.activity_type as activity_type',
+                DB::raw("'Access' as activity_type"),
                 'check_ins.id',
                 'check_ins.guest_id',
                 'check_ins.room_id',
@@ -247,7 +247,7 @@ class ActivityRecordResource extends Resource
 
         $mealRecordsQuery = MealRecord::query()
             ->select([
-                'meal_records.activity_type as activity_type',
+                DB::raw("'Meal' as activity_type"),
                 'meal_records.id',
                 'meal_records.guest_id',
                 'meal_records.room_id',

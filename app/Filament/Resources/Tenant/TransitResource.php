@@ -30,9 +30,9 @@ class TransitResource extends Resource
 
     protected static ?string $navigationGroup = 'Guest Requests';
 
-    protected static ?string $modelLabel = 'In/Out Record';
+    protected static ?string $modelLabel = 'Access Record';
 
-    protected static ?string $pluralModelLabel = 'In/Out Records';
+    protected static ?string $pluralModelLabel = 'Access Records';
 
     // Permission control for resource access
     public static function canAccess(): bool
@@ -103,6 +103,7 @@ class TransitResource extends Resource
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('transit_type')
+                    ->label('Access Type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'CHECKIN' => 'success',
@@ -117,7 +118,7 @@ class TransitResource extends Resource
                 //
                 Tables\Filters\SelectFilter::make('transit_type')
                     ->options(Transit::TRANSIT_TYPES)
-                    ->label('Transit Type'),
+                    ->label('Access Type'),
                 Tables\Filters\Filter::make('date_of_transit')
                     ->form([
                         Forms\Components\DatePicker::make('created_from')
