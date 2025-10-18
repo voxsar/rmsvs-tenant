@@ -9,6 +9,7 @@ use App\Models\Meal;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Tenant;
+use App\Models\UserTenant;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Exceptions\PermissionAlreadyExists;
@@ -40,6 +41,12 @@ class TenantDatabaseSeeder extends Seeder
             'is_active' => 'active',
             'qr_code' => 'https://example.com/qr-code.png',
         ]);
+
+		UserTenant::create([
+			'name' => 'Tenant Admin',
+            'email' => 'admin@solennico.com',
+            'password' => bcrypt('12345678'),
+		]);
 
         Meal::insert([
             [
