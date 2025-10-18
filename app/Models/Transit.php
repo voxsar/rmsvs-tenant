@@ -30,7 +30,7 @@ class Transit extends Model
     const TRANSIT_TYPES = [
         'CHECKIN' => 'Check In',
         'CHECKOUT' => 'Check Out',
-        'CHECKINOUT' => 'Check In/Out',
+        'CHECKINOUT' => 'Access',
     ];
 
     // Relationships

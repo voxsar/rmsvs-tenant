@@ -28,9 +28,9 @@ class MealRecordResource extends Resource
 
     protected static ?string $navigationGroup = 'Guest Requests';
 
-    protected static ?string $modelLabel = 'Meal Record';
+    protected static ?string $modelLabel = 'Meal';
 
-    protected static ?string $pluralModelLabel = 'Meal Records';
+    protected static ?string $pluralModelLabel = 'Meals';
 
     public static function form(Form $form): Form
     {
@@ -126,16 +126,16 @@ class MealRecordResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('update meal-record'))
                     ->tooltip(fn (Tables\Actions\EditAction $action): string => $action->isDisabled()
-                        ? 'You don\'t have permission to edit meal records'
-                        : 'Edit this meal record'),
+                        ? 'You don\'t have permission to edit meals'
+                        : 'Edit this meal'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('delete meal-record'))
                         ->tooltip(fn (Tables\Actions\DeleteBulkAction $action): string => $action->isDisabled()
-                            ? 'You don\'t have permission to delete meal records'
-                            : 'Delete selected meal records'),
+                            ? 'You don\'t have permission to delete meals'
+                            : 'Delete selected meals'),
                 ]),
             ]);
     }
