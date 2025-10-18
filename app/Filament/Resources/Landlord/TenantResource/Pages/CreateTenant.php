@@ -43,10 +43,7 @@ class CreateTenant extends CreateRecord
             ->all();
 
         unset($data['initial_rooms']);
-    }
-
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
+		
         $this->adminCredentials = [
             'name' => $data['admin_name'] ?? null,
             'email' => $data['admin_email'] ?? null,
