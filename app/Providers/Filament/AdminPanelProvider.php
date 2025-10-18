@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Tenant\ShiftReport;
 use App\Http\Middleware\FilamentPermissionMiddleware;
+use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -28,6 +29,12 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->topNavigation()
+            ->navigationGroups([
+                NavigationGroup::make()->label('Property'),
+                NavigationGroup::make()->label('Scans'),
+                NavigationGroup::make()->label('Settings'),
+            ])
             ->login()
             ->brandName('ePop')
             ->brandLogo(asset('images/epop-logo.svg'))

@@ -26,7 +26,7 @@ class CustomRequestResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = 'Guest Requests';
+    protected static ?string $navigationGroup = 'Property';
 
     protected static ?string $navigationLabel = 'Guest Requests';
 

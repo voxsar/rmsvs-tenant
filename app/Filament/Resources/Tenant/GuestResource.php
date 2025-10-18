@@ -26,7 +26,7 @@ class GuestResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'Property Management';
+    protected static ?string $navigationGroup = 'Property';
 
     protected static ?string $pluralModelLabel = 'Profiles';
 

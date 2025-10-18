@@ -26,7 +26,9 @@ class MealRecordResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Guest Requests';
+    protected static ?string $navigationGroup = 'Scans';
+
+    protected static ?string $navigationLabel = 'Meal Scans';
 
     protected static ?string $modelLabel = 'Meal';
 

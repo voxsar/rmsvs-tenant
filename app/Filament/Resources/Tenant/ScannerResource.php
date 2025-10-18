@@ -29,7 +29,7 @@ class ScannerResource extends Resource
 
     protected static ?string $navigationLabel = 'Scanners';
 
-    protected static ?string $navigationGroup = 'Settings';
+    protected static ?string $navigationGroup = 'Scans';
 
     public static function form(Form $form): Form
     {
