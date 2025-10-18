@@ -16,6 +16,8 @@ class DailyReportWidget extends Widget
 
     protected static string $view = 'filament.widgets.daily-report-widget';
 
+    public ?Form $form = null;
+
     public ?array $data = [];
 
     public ?string $selectedDate = null;
