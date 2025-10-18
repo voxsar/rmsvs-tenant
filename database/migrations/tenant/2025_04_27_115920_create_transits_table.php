@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('guest_id')->constrained('guests')->cascadeOnDelete(); // Changed from foreignUuid to foreignId
             $table->foreignId('room_id')->constrained()->cascadeOnDelete();
             $table->dateTime('date_of_transit');
-			$table->string('transit_type')->default('check_in');
+            $table->string('transit_type')->default('check_in');
             $table->timestamps();
         });
     }

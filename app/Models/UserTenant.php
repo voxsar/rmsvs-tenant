@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
+use Spatie\Permission\Traits\HasRoles;
 
 class UserTenant extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, UsesTenantConnection, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, UsesTenantConnection;
 
-	protected $table = 'users';
+    protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.

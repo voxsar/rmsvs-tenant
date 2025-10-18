@@ -3,16 +3,9 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\Guest;
-use App\Models\Meal;
-use App\Models\Room;
 use App\Models\Tenant;
-use App\Models\Consumable;
-use App\Models\MealRecord;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -26,23 +19,22 @@ class DatabaseSeeder extends Seeder
         $this->runLandlordSpecificSeeders();
     }
 
-
     public function runLandlordSpecificSeeders()
     {
         // run landlord specific seeders
 
-    	User::factory()->create([
-			'name' => 'Miyuru Dharmage',
-			'email' => 'admin@solennico.com',
-			'password' => bcrypt('12345678')
-	   ]);
+        User::factory()->create([
+            'name' => 'Miyuru Dharmage',
+            'email' => 'admin@solennico.com',
+            'password' => bcrypt('12345678'),
+        ]);
 
-	   Tenant::insert([
-			[
-				'name'=> 'landlord',
-				'domain'=> env('APP_DOMAIN'),
-				'database'=> 'rms_tenant_main_db',
-			]
-		]);
+        Tenant::insert([
+            [
+                'name' => 'landlord',
+                'domain' => env('APP_DOMAIN'),
+                'database' => 'rms_tenant_main_db',
+            ],
+        ]);
     }
 }

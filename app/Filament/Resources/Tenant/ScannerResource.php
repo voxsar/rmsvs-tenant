@@ -3,8 +3,6 @@
 namespace App\Filament\Resources\Tenant;
 
 use App\Filament\Resources\Tenant\ScannerResource\Pages;
-use App\Filament\Resources\Tenant\ScannerResource\RelationManagers;
-use Illuminate\Support\Facades\Auth;
 use App\Filament\Traits\HasPermissionBasedAccess;
 use App\Models\Scanner;
 use Filament\Forms;
@@ -12,22 +10,25 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class ScannerResource extends Resource
 {
     use HasPermissionBasedAccess;
+
     // Show in navigation menu only if user has permission to view rooms
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('view scanner');
     }
+
     protected static ?string $model = Scanner::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-qr-code';
+
     protected static ?string $navigationLabel = 'Scanners';
+
     protected static ?string $navigationGroup = 'Settings';
 
     public static function form(Form $form): Form
@@ -35,35 +36,35 @@ class ScannerResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Scanner Details')
-					->schema([
-						Forms\Components\TextInput::make('name')
-							->label('Scanner Name')
-							->required()
-							->maxLength(255)
-							->unique(ignoreRecord: true),
-						Forms\Components\TextInput::make('location')
-							->label('Location')
-							->maxLength(255),
-						Forms\Components\Select::make('status')
-							->options([
-								'active' => 'Active',
-								'inactive' => 'Inactive'
-							])
-							->default('active')
-							->required(),
-						Forms\Components\Select::make('type')
-							->options([
-								'door' => 'Door',
-								'gate' => 'Gate',
-								'consumable' => 'Consumable',
-								'restaurant' => 'Restaurant'
-							])
-							->default('door')
-							->required(),
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Scanner Name')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                        Forms\Components\TextInput::make('location')
+                            ->label('Location')
+                            ->maxLength(255),
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                'active' => 'Active',
+                                'inactive' => 'Inactive',
+                            ])
+                            ->default('active')
+                            ->required(),
+                        Forms\Components\Select::make('type')
+                            ->options([
+                                'door' => 'Door',
+                                'gate' => 'Gate',
+                                'consumable' => 'Consumable',
+                                'restaurant' => 'Restaurant',
+                            ])
+                            ->default('door')
+                            ->required(),
                         // Only show scan URL for existing records
                         Forms\Components\View::make('filament.resources.scanner-url-view')
                             ->visible(fn ($record) => $record !== null && $record->exists),
-					])->columns(2),
+                    ])->columns(2),
             ]);
     }
 
@@ -71,10 +72,10 @@ class ScannerResource extends Resource
     {
         return $table
             ->columns([
-				Tables\Columns\TextColumn::make('name')
-					->label('Scanner Name')
-					->sortable()
-					->searchable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Scanner Name')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('location')
                     ->sortable()
                     ->searchable(),

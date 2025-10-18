@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Tenant;
 
 use App\Filament\Resources\Tenant\TransitResource\Pages;
-use App\Filament\Resources\Tenant\TransitResource\RelationManagers;
 use App\Filament\Traits\HasPermissionBasedAccess;
 use App\Models\Transit;
 use Filament\Forms;
@@ -13,21 +12,26 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
 class TransitResource extends Resource
 {
     use HasPermissionBasedAccess;
+
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('view transit');
     }
+
     protected static ?string $model = Transit::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-key';
+
     protected static ?string $navigationGroup = 'Guest Requests';
+
     protected static ?string $modelLabel = 'In/Out Record';
+
     protected static ?string $pluralModelLabel = 'In/Out Records';
 
     // Permission control for resource access
@@ -41,40 +45,42 @@ class TransitResource extends Resource
         return $form
             ->schema([
                 //
-				Forms\Components\DateTimePicker::make('date_of_transit')
-					->default(now())
-					->required(),
-				Forms\Components\Select::make('transit_type')
-					->options(Transit::TRANSIT_TYPES)
-					->default('CHECKIN')
-					->required(),
-				Forms\Components\Select::make('guest_id')
-					->relationship('guest', 'first_name', function ($query) {
-						return $query->orderBy('first_name');
-					})
-					->getOptionLabelFromRecordUsing(fn ($record) => "{$record->first_name} {$record->last_name}")
-					->searchable(['first_name', 'last_name', 'email'])
-					->preload()
-					 ->live()
-					->afterStateUpdated(function ($state, callable $set, callable $get) {
-						if (!$state) return;
-						
-						$guest = \App\Models\Guest::find($state);
-						if ($guest && $guest->type === 'RESIDENT' && $guest->assigned_room_id) {
-							$set('room_id', $guest->assigned_room_id);
-						}
-					})
-					->required(),
-				Forms\Components\Select::make('room_id')
-					->label('Room')
-					->relationship('room', 'room_no', function ($query) {
-						return $query->orderBy('room_no');
-					})
-					->getOptionLabelFromRecordUsing(fn ($record) => "{$record->room_no} {$record->building}")
-					->searchable(['room_no'])
-					->preload()
-					->required()
-					->helperText('For residential guests, this will be auto-populated based on their assigned room'),
+                Forms\Components\DateTimePicker::make('date_of_transit')
+                    ->default(now())
+                    ->required(),
+                Forms\Components\Select::make('transit_type')
+                    ->options(Transit::TRANSIT_TYPES)
+                    ->default('CHECKIN')
+                    ->required(),
+                Forms\Components\Select::make('guest_id')
+                    ->relationship('guest', 'first_name', function ($query) {
+                        return $query->orderBy('first_name');
+                    })
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->first_name} {$record->last_name}")
+                    ->searchable(['first_name', 'last_name', 'email'])
+                    ->preload()
+                    ->live()
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        if (! $state) {
+                            return;
+                        }
+
+                        $guest = \App\Models\Guest::find($state);
+                        if ($guest && $guest->type === 'RESIDENT' && $guest->assigned_room_id) {
+                            $set('room_id', $guest->assigned_room_id);
+                        }
+                    })
+                    ->required(),
+                Forms\Components\Select::make('room_id')
+                    ->label('Room')
+                    ->relationship('room', 'room_no', function ($query) {
+                        return $query->orderBy('room_no');
+                    })
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->room_no} {$record->building}")
+                    ->searchable(['room_no'])
+                    ->preload()
+                    ->required()
+                    ->helperText('For residential guests, this will be auto-populated based on their assigned room'),
             ]);
     }
 
@@ -108,7 +114,7 @@ class TransitResource extends Resource
             ])
             ->searchable()
             ->filters([
-                // 
+                //
                 Tables\Filters\SelectFilter::make('transit_type')
                     ->options(Transit::TRANSIT_TYPES)
                     ->label('Transit Type'),
@@ -129,7 +135,7 @@ class TransitResource extends Resource
                                 $data['created_until'],
                                 fn (Builder $query, $date): Builder => $query->whereDate('date_of_transit', '<=', $date),
                             );
-                    })
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -138,10 +144,10 @@ class TransitResource extends Resource
                     ->label('Process Check In')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn ($record) => 
+                    ->visible(fn ($record) =>
                         Auth::guard('tenant')->check() &&
-                        $record->transit_type === 'CHECKIN' && 
-                        !$record->processed_at && 
+                        $record->transit_type === 'CHECKIN' &&
+                        !$record->processed_at &&
                         Auth::guard('tenant')->user()->can('process check-ins')
                     )
                     ->action(function ($record) {
@@ -153,10 +159,9 @@ class TransitResource extends Resource
                     ->label('Process Check Out')
                     ->icon('heroicon-o-arrow-right-circle')
                     ->color('info')
-                    ->visible(fn ($record) => 
-                        Auth::guard('tenant')->check() &&
-                        $record->transit_type === 'CHECKOUT' && 
-                        !$record->processed_at && 
+                    ->visible(fn ($record) => Auth::guard('tenant')->check() &&
+                        $record->transit_type === 'CHECKOUT' &&
+                        ! $record->processed_at &&
                         Auth::guard('tenant')->user()->can('process check-outs')
                     )
                     ->action(function ($record) {
@@ -176,7 +181,7 @@ class TransitResource extends Resource
                         ->visible(fn () => Auth::guard('tenant')->check() && Auth::guard('tenant')->user()->can('process check-ins'))
                         ->action(function ($records) {
                             foreach ($records as $record) {
-                                if ($record->transit_type === 'CHECKIN' && !$record->processed_at) {
+                                if ($record->transit_type === 'CHECKIN' && ! $record->processed_at) {
                                     $record->processed_at = now();
                                     $record->processed_by = Auth::guard('tenant')->id();
                                     $record->save();
@@ -190,7 +195,7 @@ class TransitResource extends Resource
                         ->visible(fn () => Auth::guard('tenant')->check() && Auth::guard('tenant')->user()->can('process check-outs'))
                         ->action(function ($records) {
                             foreach ($records as $record) {
-                                if ($record->transit_type === 'CHECKOUT' && !$record->processed_at) {
+                                if ($record->transit_type === 'CHECKOUT' && ! $record->processed_at) {
                                     $record->processed_at = now();
                                     $record->processed_by = Auth::guard('tenant')->id();
                                     $record->save();
@@ -216,34 +221,34 @@ class TransitResource extends Resource
             'edit' => Pages\EditTransit::route('/{record}/edit'),
         ];
     }
-    
+
     // Override canCreate method to control create page visibility
     public static function canCreate(): bool
     {
-        if (!Auth::guard('tenant')->check()) {
+        if (! Auth::guard('tenant')->check()) {
             return false;
         }
-        
+
         return Auth::guard('tenant')->user()->can('create transit');
     }
-    
+
     // Override canEdit method to control edit page visibility
     public static function canEdit(Model $record): bool
     {
-        if (!Auth::guard('tenant')->check()) {
+        if (! Auth::guard('tenant')->check()) {
             return false;
         }
-        
+
         return Auth::guard('tenant')->user()->can('update transit');
     }
-    
+
     // Override canDelete method to control delete functionality
     public static function canDelete(Model $record): bool
     {
-        if (!Auth::guard('tenant')->check()) {
+        if (! Auth::guard('tenant')->check()) {
             return false;
         }
-        
+
         return Auth::guard('tenant')->user()->can('delete transit');
     }
 }

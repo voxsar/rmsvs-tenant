@@ -2,34 +2,34 @@
 
 namespace App\Filament\Resources\Tenant;
 
-use Log;
 use App\Filament\Resources\Tenant\MealRecordResource\Pages;
-use App\Filament\Resources\Tenant\MealRecordResource\RelationManagers;
 use App\Filament\Traits\HasPermissionBasedAccess;
-use App\Models\Transit;
 use App\Models\MealRecord;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
 class MealRecordResource extends Resource
 {
-	use HasPermissionBasedAccess;
+    use HasPermissionBasedAccess;
+
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('view meal-record');
     }
+
     protected static ?string $model = MealRecord::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?string $navigationGroup = 'Guest Requests';
+
     protected static ?string $modelLabel = 'Meal Record';
+
     protected static ?string $pluralModelLabel = 'Meal Records';
 
     public static function form(Form $form): Form
@@ -45,16 +45,18 @@ class MealRecordResource extends Resource
                     ->preload()
                     ->live()
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        if (!$state) return;
-                        
+                        if (! $state) {
+                            return;
+                        }
+
                         $guest = \App\Models\Guest::find($state);
-                        
+
                         // First try to get the latest active check-in
                         $latestCheckIn = \App\Models\CheckIn::where('guest_id', $state)
                             ->whereNull('date_of_departure')
                             ->latest('date_of_arrival')
                             ->first();
-                            
+
                         if ($latestCheckIn) {
                             // If found, use the room from the active check-in
                             $set('room_id', $latestCheckIn->room_id);
@@ -64,28 +66,29 @@ class MealRecordResource extends Resource
                         }
                     })
                     ->required(),
-				Forms\Components\Select::make('meal_id')
-					->relationship('meal', 'meal_type', function ($query) {
-						return $query->orderBy('id');
-					})
-					->getOptionLabelFromRecordUsing(function ($record){
-						$week_days = implode(', ', $record->week_day);
-						return "{$record->meal_type} - {$week_days}";
-					})
-					->searchable(['meal_type', 'week_day'])
-					->preload()
-					->required(),
-				Forms\Components\Select::make('room_id')
-					->relationship('room', 'room_no', function ($query) {
-						return $query->orderBy('room_no');
-					})
-					->getOptionLabelFromRecordUsing(fn ($record) => "{$record->room_no} {$record->building}")
-					->searchable(['room_no'])
-					->preload()
-					->required()
+                Forms\Components\Select::make('meal_id')
+                    ->relationship('meal', 'meal_type', function ($query) {
+                        return $query->orderBy('id');
+                    })
+                    ->getOptionLabelFromRecordUsing(function ($record) {
+                        $week_days = implode(', ', $record->week_day);
+
+                        return "{$record->meal_type} - {$week_days}";
+                    })
+                    ->searchable(['meal_type', 'week_day'])
+                    ->preload()
+                    ->required(),
+                Forms\Components\Select::make('room_id')
+                    ->relationship('room', 'room_no', function ($query) {
+                        return $query->orderBy('room_no');
+                    })
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->room_no} {$record->building}")
+                    ->searchable(['room_no'])
+                    ->preload()
+                    ->required()
                     ->helperText('For residential guests, this will be auto-populated based on their assigned room'),
                 Forms\Components\DateTimePicker::make('date_of_transit')
-					->label('Meal Date/Time')
+                    ->label('Meal Date/Time')
                     ->default(now())
                     ->required(),
             ]);
@@ -97,24 +100,23 @@ class MealRecordResource extends Resource
             ->columns([
                 //
                 Tables\Columns\TextColumn::make('date_of_transit')
-					->dateTime()
-					->sortable(),
-				Tables\Columns\TextColumn::make('meal.meal_type')
-					->sortable()
-					->badge()
-					->label('Meal'),
-				Tables\Columns\TextColumn::make("guest.first_name")
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('meal.meal_type')
+                    ->sortable()
+                    ->badge()
+                    ->label('Meal'),
+                Tables\Columns\TextColumn::make('guest.first_name')
                     ->label('Guest')
                     ->sortable(['guest.first_name'])
                     ->searchable(['guests.first_name', 'guests.last_name', 'guests.email'])
                     ->description(fn ($record) => $record->guest ? "Guest: {$record->guest->phone}, TRN: {$record->room->trn}" : null),
-				Tables\Columns\TextColumn::make('room.room_no')
+                Tables\Columns\TextColumn::make('room.room_no')
                     ->label('Room Number')
                     ->sortable(['room.room_no'])
                     ->searchable(['rooms.room_no', 'rooms.building', 'rooms.floor'])
                     ->description(fn ($record) => $record->room ? "Building: {$record->room->building}, Floor: {$record->room->floor}" : null),
-                
-                
+
             ])
             ->searchable()
             ->filters([
@@ -123,16 +125,16 @@ class MealRecordResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('update meal-record'))
-                    ->tooltip(fn (Tables\Actions\EditAction $action): string => $action->isDisabled() 
-                        ? 'You don\'t have permission to edit meal records' 
+                    ->tooltip(fn (Tables\Actions\EditAction $action): string => $action->isDisabled()
+                        ? 'You don\'t have permission to edit meal records'
                         : 'Edit this meal record'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('delete meal-record'))
-                        ->tooltip(fn (Tables\Actions\DeleteBulkAction $action): string => $action->isDisabled() 
-                            ? 'You don\'t have permission to delete meal records' 
+                        ->tooltip(fn (Tables\Actions\DeleteBulkAction $action): string => $action->isDisabled()
+                            ? 'You don\'t have permission to delete meal records'
                             : 'Delete selected meal records'),
                 ]),
             ]);

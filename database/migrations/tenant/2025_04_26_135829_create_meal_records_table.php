@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id(); // Changed from uuid to auto-incrementing ID
             $table->foreignId('guest_id')->constrained('guests')->cascadeOnDelete(); // Changed from foreignUuid to foreignId
             $table->foreignId('room_id')->constrained()->cascadeOnDelete();
-			$table->foreignId('meal_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('meal_id')->constrained()->cascadeOnDelete();
             $table->dateTime('date_of_transit');
-			$table->string('transit_type')->default('entered');
-			$table->string('activity_type')->default('Meal Record');
+            $table->string('transit_type')->default('entered');
+            $table->string('activity_type')->default('Meal Record');
             $table->timestamps();
         });
     }

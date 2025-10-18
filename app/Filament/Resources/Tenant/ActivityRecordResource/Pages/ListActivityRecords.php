@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Tenant\ActivityRecordResource\Pages;
 
 use App\Filament\Resources\Tenant\ActivityRecordResource;
-use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListActivityRecords extends ListRecords
@@ -12,6 +11,6 @@ class ListActivityRecords extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [ ];
+        return [];
     }
 }

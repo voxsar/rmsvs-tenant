@@ -3,12 +3,11 @@
 namespace App\Filament\Resources\Tenant\CheckInResource\Pages;
 
 use App\Filament\Resources\Tenant\CheckInResource;
-use Filament\Infolists\Components\Actions\Action as Act;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
+use Filament\Infolists\Components\Actions\Action as Act;
 use Filament\Infolists\Infolist;
-use Illuminate\Support\Facades\Storage;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewCheckIn extends ViewRecord
 {
@@ -31,7 +30,7 @@ class ViewCheckIn extends ViewRecord
                             ->label('Room')
                             ->formatStateUsing(fn ($record) => "{$record->room->room_no} ({$record->room->building}, Floor {$record->room->floor})"),
                     ])->columns(2),
-                
+
                 Infolists\Components\Section::make('QR Code')
                     ->schema([
                         Infolists\Components\ImageEntry::make('qr_code')

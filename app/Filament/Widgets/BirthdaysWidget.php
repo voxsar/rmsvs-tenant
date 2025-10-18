@@ -6,21 +6,21 @@ use App\Models\Guest;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 class BirthdaysWidget extends BaseWidget
 {
     protected static ?string $heading = 'Upcoming Birthdays';
+
     protected static ?int $sort = 3;
-    
+
     public function table(Table $table): Table
     {
         return $table
             ->query(
                 // Find guests with birthdays in the next 30 days
                 Guest::query()
-                    ->where('type', 'RESIDENT') // Only show Residents 
+                    ->where('type', 'RESIDENT') // Only show Residents
                     ->whereRaw('
                         (
                             MONTH(date_of_birth) = MONTH(CURRENT_DATE) AND 
@@ -50,68 +50,69 @@ class BirthdaysWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('upcoming_birthday')
                     ->label('Upcoming Birthday')
                     ->getStateUsing(function (Guest $record) {
-                        if (!$record->date_of_birth) {
+                        if (! $record->date_of_birth) {
                             return null;
                         }
-                        
+
                         $birthdate = Carbon::parse($record->date_of_birth);
                         $today = Carbon::today();
-                        
+
                         $birthdayThisYear = Carbon::createFromDate(
                             $today->year,
                             $birthdate->month,
                             $birthdate->day
                         );
-                        
+
                         if ($birthdayThisYear->isPast()) {
                             $birthdayThisYear->addYear();
                         }
-                        
+
                         return $birthdayThisYear->format('M d, Y');
                     }),
                 Tables\Columns\TextColumn::make('days_until')
                     ->label('Days Until')
                     ->getStateUsing(function (Guest $record) {
-                        if (!$record->date_of_birth) {
+                        if (! $record->date_of_birth) {
                             return null;
                         }
-                        
+
                         $birthdate = Carbon::parse($record->date_of_birth);
                         $today = Carbon::today();
-                        
+
                         $birthdayThisYear = Carbon::createFromDate(
                             $today->year,
                             $birthdate->month,
                             $birthdate->day
                         );
-                        
+
                         if ($birthdayThisYear->isPast()) {
                             $birthdayThisYear->addYear();
                         }
-                        
+
                         $daysUntil = $today->diffInDays($birthdayThisYear, false);
-                        return $daysUntil === 0 ? 'Today!' : $daysUntil . ' days';
+
+                        return $daysUntil === 0 ? 'Today!' : $daysUntil.' days';
                     }),
                 Tables\Columns\TextColumn::make('age')
                     ->label('Turning Age')
                     ->getStateUsing(function (Guest $record) {
-                        if (!$record->date_of_birth) {
+                        if (! $record->date_of_birth) {
                             return null;
                         }
-                        
+
                         $birthdate = Carbon::parse($record->date_of_birth);
                         $today = Carbon::today();
-                        
+
                         $birthdayThisYear = Carbon::createFromDate(
                             $today->year,
                             $birthdate->month,
                             $birthdate->day
                         );
-                        
+
                         if ($birthdayThisYear->isPast()) {
                             return $today->diffInYears($birthdate) + 1;
                         }
-                        
+
                         return $today->diffInYears($birthdate) + 1;
                     }),
             ])

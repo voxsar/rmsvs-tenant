@@ -5,8 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Transit extends Model
@@ -54,7 +52,7 @@ class Transit extends Model
     // Permission-based scopes
     public function scopeViewableBy($query, $user)
     {
-        if (!$user->can('view transit')) {
+        if (! $user->can('view transit')) {
             return $query->whereRaw('1 = 0'); // Returns nothing if no permission
         }
 

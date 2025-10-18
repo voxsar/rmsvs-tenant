@@ -19,15 +19,15 @@ class ListTransits extends ListRecords
                 ->visible(fn () => Auth::guard('tenant')->check() && Auth::guard('tenant')->user()->can('create transit')),
         ];
     }
-    
+
     public function mount(): void
     {
         abort_unless(
-            Auth::guard('tenant')->check() && 
-            Gate::forUser(Auth::guard('tenant')->user())->check('view transit'), 
+            Auth::guard('tenant')->check() &&
+            Gate::forUser(Auth::guard('tenant')->user())->check('view transit'),
             403
         );
-        
+
         parent::mount();
     }
 }

@@ -2,20 +2,21 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Guest;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
 
 class GenderDistributionChart extends ChartWidget
 {
     protected static ?string $heading = 'Gender Distribution';
+
     protected static ?string $maxHeight = '300px';
+
     protected static ?string $pollingInterval = '60s';
 
     protected function getData(): array
     {
-        $data = DB::connection("tenant")->table('guests')
-            ->select('sex', DB::connection("tenant")->raw('count(*) as count'))
+        $data = DB::connection('tenant')->table('guests')
+            ->select('sex', DB::connection('tenant')->raw('count(*) as count'))
             ->groupBy('sex')
             ->get();
 

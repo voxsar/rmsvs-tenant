@@ -4,14 +4,12 @@ namespace App\Services;
 
 use App\Models\Consumable;
 use App\Models\CustomRequest;
-use Illuminate\Support\Facades\DB;
 
 class CustomRequestService
 {
     /**
      * Process a custom request based on its type
-     * 
-     * @param CustomRequest $request
+     *
      * @return CustomRequest
      */
     public function processRequest(CustomRequest $request)
@@ -30,8 +28,7 @@ class CustomRequestService
 
     /**
      * Process a late dinner request
-     * 
-     * @param CustomRequest $request
+     *
      * @return CustomRequest
      */
     private function processLateDinnerRequest(CustomRequest $request)
@@ -40,7 +37,7 @@ class CustomRequestService
         $lateDinner = Consumable::where('name', 'Late Dinner')->first();
 
         // Create it if it doesn't exist
-        if (!$lateDinner) {
+        if (! $lateDinner) {
             $lateDinner = Consumable::create([
                 'name' => 'Late Dinner',
                 'description' => 'Late dinner request by guest',

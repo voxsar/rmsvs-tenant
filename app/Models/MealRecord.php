@@ -9,16 +9,16 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class MealRecord extends Model
 {
-	use UsesTenantConnection;
     use HasFactory;
+    use UsesTenantConnection;
 
-	protected $fillable = [
+    protected $fillable = [
         'guest_id',
         'room_id',
         'meal_id',
-		'date_of_transit',
+        'date_of_transit',
         'transit_type',
-		'activity_type',
+        'activity_type',
     ];
 
     protected $casts = [
@@ -29,22 +29,25 @@ class MealRecord extends Model
      * The possible meal types.
      */
     public const TRANSIT_TYPES = [
-		'CHECK_IN' => 'Check In',
-		'CHECK_OUT' => 'Check Out',
+        'CHECK_IN' => 'Check In',
+        'CHECK_OUT' => 'Check Out',
     ];
 
     public function checkIn(): BelongsTo
     {
         return $this->belongsTo(CheckIn::class);
     }
+
     public function guest(): BelongsTo
     {
         return $this->belongsTo(Guest::class);
     }
+
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
     }
+
     public function meal(): BelongsTo
     {
         return $this->belongsTo(Meal::class);

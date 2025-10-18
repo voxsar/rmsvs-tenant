@@ -6,7 +6,6 @@ use App\Filament\Resources\Tenant\GuestResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 
 class EditGuest extends EditRecord
 {
@@ -25,7 +24,7 @@ class EditGuest extends EditRecord
     protected function authorizeAccess(): void
     {
         abort_unless(
-            Auth::guard('tenant')->check() && 
+            Auth::guard('tenant')->check() &&
             Auth::guard('tenant')->user()->can('update guest'),
             403
         );

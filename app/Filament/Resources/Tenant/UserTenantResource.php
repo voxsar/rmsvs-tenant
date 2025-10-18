@@ -3,35 +3,40 @@
 namespace App\Filament\Resources\Tenant;
 
 use App\Filament\Resources\Tenant\UserTenantResource\Pages;
-use App\Filament\Resources\Tenant\UserTenantResource\RelationManagers;
 use App\Filament\Traits\HasPermissionBasedAccess;
-use App\Models\UserTenant;
 use App\Models\Role;
+use App\Models\UserTenant;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Support\Facades\Auth;
 
 class UserTenantResource extends Resource
 {
     use HasPermissionBasedAccess;
+
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('view user');
     }
+
     protected static ?string $model = UserTenant::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $navigationGroup = 'User Management';
+
     protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationLabel = 'Users';
+
     protected static ?string $modelLabel = 'User';
+
     protected static ?string $pluralModelLabel = 'Users';
 
     public static function form(Form $form): Form
@@ -64,7 +69,7 @@ class UserTenantResource extends Resource
                             ->required()
                             ->helperText('Assign predefined roles to the user. Manager has full access, Senior handles operations, Junior does data entry, Scanner handles QR scanning.')
                             ->label('User Role'),
-                    ])
+                    ]),
             ]);
     }
 
@@ -84,7 +89,7 @@ class UserTenantResource extends Resource
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'Manager' => 'danger',
-                        'Senior' => 'warning', 
+                        'Senior' => 'warning',
                         'Junior' => 'info',
                         'Scanner' => 'gray',
                         default => 'success',

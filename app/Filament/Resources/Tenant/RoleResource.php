@@ -6,29 +6,30 @@ use App\Filament\Resources\Tenant\RoleResource\Pages;
 use App\Filament\Resources\Tenant\RoleResource\RelationManagers;
 use App\Filament\Traits\HasPermissionBasedAccess;
 use App\Models\Role;
-use App\Models\Permission;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class RoleResource extends Resource
 {
     use HasPermissionBasedAccess;
+
     public static function shouldRegisterNavigation(): bool
     {
         return false; // Hidden for simplified user experience
     }
+
     protected static ?string $model = Role::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
+
     protected static ?string $navigationGroup = 'User Management';
+
     protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Roles';
 
     public static function form(Form $form): Form
@@ -44,8 +45,8 @@ class RoleResource extends Resource
                             ->relationship('permissions', 'name')
                             ->multiple()
                             ->preload()
-                            ->searchable()
-                    ])
+                            ->searchable(),
+                    ]),
             ]);
     }
 
@@ -90,13 +91,13 @@ class RoleResource extends Resource
                         ->before(function (Tables\Actions\DeleteBulkAction $action, Collection $records) {
                             // Filter out super-admin role
                             $protectedRoles = ['super-admin', 'admin'];
-                            
+
                             foreach ($records as $key => $record) {
                                 if (in_array($record->name, $protectedRoles)) {
                                     $records->forget($key);
                                 }
                             }
-                            
+
                             if ($records->isEmpty()) {
                                 $action->cancel();
                             }

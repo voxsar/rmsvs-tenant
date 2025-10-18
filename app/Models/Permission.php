@@ -12,19 +12,19 @@ class Permission extends SpatiePermission
 {
     use HasFactory, UsesTenantConnection;
 
-	protected $table = 'permissions';
+    protected $table = 'permissions';
 
     /**
      * A permission can be applied to roles.
      */
     public function roles(): BelongsToMany
     {
-		return $this->belongsToMany(
-			Role::class, 
-			'role_has_permissions', 
-			'permission_id', 
-			'role_id'
-		)->using(RoleHasPermission::class);
+        return $this->belongsToMany(
+            Role::class,
+            'role_has_permissions',
+            'permission_id',
+            'role_id'
+        )->using(RoleHasPermission::class);
     }
 
     /**
@@ -33,11 +33,11 @@ class Permission extends SpatiePermission
     public function users(): BelongsToMany
     {
         return $this->morphedByMany(
-			User::class,
-			'model',
-			'model_has_permissions',
-			'permission_id',
-			'model_id'
-		)->using(ModelHasPermission::class);
+            User::class,
+            'model',
+            'model_has_permissions',
+            'permission_id',
+            'model_id'
+        )->using(ModelHasPermission::class);
     }
 }

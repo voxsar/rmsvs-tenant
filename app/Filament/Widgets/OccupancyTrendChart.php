@@ -2,7 +2,6 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\CheckIn;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -10,7 +9,9 @@ use Illuminate\Support\Facades\DB;
 class OccupancyTrendChart extends ChartWidget
 {
     protected static ?string $heading = 'Occupancy Trend';
+
     protected static ?string $maxHeight = '300px';
+
     protected static ?string $pollingInterval = '60s';
 
     protected function getData(): array
@@ -19,17 +20,17 @@ class OccupancyTrendChart extends ChartWidget
         $startDate = Carbon::now()->subDays(30);
         $endDate = Carbon::now();
 
-        $dailyCheckIns = DB::connection("tenant")->table('check_ins')
-            ->select(DB::connection("tenant")->raw('DATE(created_at) as date'), DB::connection("tenant")->raw('count(*) as count'))
+        $dailyCheckIns = DB::connection('tenant')->table('check_ins')
+            ->select(DB::connection('tenant')->raw('DATE(created_at) as date'), DB::connection('tenant')->raw('count(*) as count'))
             ->where('created_at', '>=', $startDate)
             ->groupBy('date')
             ->orderBy('date')
             ->get();
-        
+
         // Create a range of all dates in the period
         $period = collect(Carbon::parse($startDate)->daysUntil($endDate));
         $dates = $period->map(fn ($date) => $date->format('Y-m-d'));
-        
+
         // Fill in any missing dates with zero counts
         $filledData = collect();
         foreach ($dates as $date) {
@@ -39,7 +40,7 @@ class OccupancyTrendChart extends ChartWidget
                 'count' => $checkInsForDate ? $checkInsForDate->count : 0,
             ]);
         }
-        
+
         return [
             'datasets' => [
                 [

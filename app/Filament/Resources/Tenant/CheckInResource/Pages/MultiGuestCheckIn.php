@@ -6,23 +6,20 @@ use App\Filament\Resources\Tenant\CheckInResource;
 use App\Models\CheckIn;
 use App\Models\Guest;
 use App\Models\Room;
-use Carbon\Carbon;
-use Filament\Resources\Pages\Page;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
+use Filament\Resources\Pages\Page;
 
 class MultiGuestCheckIn extends Page
 {
     protected static string $resource = CheckInResource::class;
 
     protected static string $view = 'filament.resources.check-in-resource.pages.multi-guest-check-in';
-    
+
     public ?array $data = [];
 
     public function mount(): void
@@ -63,7 +60,7 @@ class MultiGuestCheckIn extends Page
                                 Forms\Components\Select::make('status')
                                     ->options([
                                         'available' => 'Available',
-                                        'occupied' => 'Occupied', 
+                                        'occupied' => 'Occupied',
                                         'maintenance' => 'Maintenance',
                                     ])
                                     ->default('available')
@@ -79,51 +76,51 @@ class MultiGuestCheckIn extends Page
     public function create(): void
     {
         $data = $this->form->getState();
-        
+
         $room = Room::find($data['room_id']);
-        
+
         // Only block check-in if room is under maintenance
         if ($room->status === 'maintenance') {
             Notification::make()
                 ->title('Room is under maintenance')
                 ->danger()
                 ->send();
-                
+
             return;
         }
-        
+
         // Set room status to occupied
         $room->status = 'occupied';
         $room->save();
-        
+
         $guestIds = $data['guest_ids'];
         $successCount = 0;
-        
+
         foreach ($guestIds as $guestId) {
             // Create check-in record for each guest
-            $checkIn = new CheckIn();
+            $checkIn = new CheckIn;
             $checkIn->guest_id = $guestId;
             $checkIn->room_id = $data['room_id'];
             $checkIn->date_of_arrival = $data['date_of_arrival'];
-            
+
             if (isset($data['date_of_departure'])) {
                 $checkIn->date_of_departure = $data['date_of_departure'];
             }
-            
+
             $checkIn->save();
-            
+
             // Generate QR code
             $guest = Guest::find($guestId);
             $room->generateGuestRoomQrCode($guest);
-            
+
             $successCount++;
         }
-        
+
         Notification::make()
             ->title("Successfully checked in {$successCount} guests to Room {$room->room_no}")
             ->success()
             ->send();
-            
+
         $this->redirect(CheckInResource::getUrl('index'));
     }
 }

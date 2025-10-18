@@ -11,17 +11,19 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class CustomRequest extends Pivot
 {
-	use UsesTenantConnection;
     use HasFactory;
-	public $incrementing = true;
-	protected $table = 'custom_requests';
+    use UsesTenantConnection;
+
+    public $incrementing = true;
+
+    protected $table = 'custom_requests';
 
     protected $fillable = [
         'guest_id',
         'room_id',
         'consumable_id',
         'request_type',
-		'activity_type',
+        'activity_type',
         'description',
         'status',
         'response_msg',
@@ -61,14 +63,14 @@ class CustomRequest extends Pivot
 
         // Process the request based on its type after creation
         static::created(function ($request) {
-            $service = new CustomRequestService();
+            $service = new CustomRequestService;
             $service->processRequest($request);
         });
 
         // Process the request based on its type after update if request_type changed
         static::updated(function ($request) {
             if ($request->isDirty('request_type')) {
-                $service = new CustomRequestService();
+                $service = new CustomRequestService;
                 $service->processRequest($request);
             }
         });

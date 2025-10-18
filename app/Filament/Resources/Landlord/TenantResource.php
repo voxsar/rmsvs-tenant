@@ -17,6 +17,7 @@ class TenantResource extends Resource
     protected static ?string $model = Tenant::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?string $navigationGroup = 'Settings';
 
     public static function form(Form $form): Form
@@ -32,7 +33,7 @@ class TenantResource extends Resource
                             $set('domain', Str::slug($state));
                         }
                         if (! $get('is_database_manually_changed')) {
-                            $set('database', Str::snake($state) . '_db');
+                            $set('database', Str::snake($state).'_db');
                         }
                     }),
 
@@ -41,8 +42,8 @@ class TenantResource extends Resource
 
                 Forms\Components\Select::make('domain_type')
                     ->options([
-                        'subdomain' => 'Subdomain (under ' . config('app.domain') . ')',
-                        'domain' => 'Custom Domain'
+                        'subdomain' => 'Subdomain (under '.config('app.domain').')',
+                        'domain' => 'Custom Domain',
                     ])
                     ->default('subdomain')
                     ->reactive()
@@ -57,7 +58,7 @@ class TenantResource extends Resource
                     ->dehydrated(true)
                     ->helperText(function (Forms\Get $get) {
                         return $get('domain_type') === 'subdomain'
-                            ? 'Auto-generated: ' . Str::slug($get('name')) . '.' . config('app.domain')
+                            ? 'Auto-generated: '.Str::slug($get('name')).'.'.config('app.domain')
                             : 'Enter your custom domain';
                     })
                     ->live(onBlur: true)
@@ -75,7 +76,7 @@ class TenantResource extends Resource
                     ->placeholder('tenant_db')
                     ->disabled(true)
                     ->dehydrated(true)
-                    ->helperText(fn (Forms\Get $get) => 'Auto-generated: ' . Str::snake($get('name')) . '_db'),
+                    ->helperText(fn (Forms\Get $get) => 'Auto-generated: '.Str::snake($get('name')).'_db'),
 
                 // 🏠 Initial Rooms Section
                 Forms\Components\Repeater::make('initial_rooms')
@@ -83,8 +84,7 @@ class TenantResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('room_no')
                             ->label('Room Number')
-                            ->maxLength(255)
-                            ->required(),
+                            ->maxLength(255),
                         Forms\Components\TextInput::make('building')->maxLength(255),
                         Forms\Components\TextInput::make('floor')->maxLength(255),
                         Forms\Components\Select::make('status')
@@ -146,17 +146,24 @@ class TenantResource extends Resource
                     ->searchable()
                     ->label('Domain')
                     ->formatStateUsing(function ($state, $record = null) {
-                        if (! $record || blank($state)) return '';
+                        if (! $record || blank($state)) {
+                            return '';
+                        }
                         $baseDomain = config('app.domain');
-                        if ($record->domain_type !== 'subdomain') return $state;
-                        if (! Str::contains($state, '.')) return $state . '.' . $baseDomain;
+                        if ($record->domain_type !== 'subdomain') {
+                            return $state;
+                        }
+                        if (! Str::contains($state, '.')) {
+                            return $state.'.'.$baseDomain;
+                        }
+
                         return $state;
                     }),
                 Tables\Columns\TextColumn::make('custom_domain')
                     ->sortable()
                     ->searchable()
                     ->label('Custom Domain')
-                    ->visible(fn ($record) => $record && !empty($record->custom_domain)),
+                    ->visible(fn ($record) => $record && ! empty($record->custom_domain)),
                 Tables\Columns\TextColumn::make('database')->sortable()->searchable()->label('Database'),
                 Tables\Columns\TextColumn::make('created_at')->sortable()->dateTime(),
             ])

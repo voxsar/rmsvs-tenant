@@ -9,8 +9,8 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Consumable extends Model
 {
-	use UsesTenantConnection;
     use HasFactory;
+    use UsesTenantConnection;
 
     protected $fillable = [
         'name',

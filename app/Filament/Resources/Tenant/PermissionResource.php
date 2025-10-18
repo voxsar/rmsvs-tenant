@@ -11,22 +11,24 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
 
 class PermissionResource extends Resource
 {
     use HasPermissionBasedAccess;
+
     public static function shouldRegisterNavigation(): bool
     {
         return false; // Hidden for simplified user experience
     }
+
     protected static ?string $model = Permission::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-key';
+
     protected static ?string $navigationGroup = 'User Management';
+
     protected static ?int $navigationSort = 3;
+
     protected static ?string $navigationLabel = 'Permissions';
 
     public static function form(Form $form): Form
@@ -41,7 +43,7 @@ class PermissionResource extends Resource
                         Forms\Components\TextInput::make('guard_name')
                             ->default('tenant')
                             ->required(),
-                    ])
+                    ]),
             ]);
     }
 

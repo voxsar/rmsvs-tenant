@@ -8,14 +8,14 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class DailyReport extends Model
 {
-	use UsesTenantConnection;
     use HasFactory;
-    
+    use UsesTenantConnection;
+
     protected $fillable = [
         'date',
         'content',
     ];
-    
+
     protected $casts = [
         'date' => 'date',
     ];

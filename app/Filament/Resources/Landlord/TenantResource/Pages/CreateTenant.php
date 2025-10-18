@@ -3,8 +3,6 @@
 namespace App\Filament\Resources\Landlord\TenantResource\Pages;
 
 use App\Filament\Resources\Landlord\TenantResource;
-use App\Models\Room;
-use DigitalOceanV2;
 use App\Models\UserTenant;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
@@ -17,12 +15,12 @@ use Illuminate\Support\Str;
 class CreateTenant extends CreateRecord
 {
     protected static string $resource = TenantResource::class;
-  
+
     /**
      * @var array<string, mixed>
      */
-    protected array $adminCredentials = [];  
-  
+    protected array $adminCredentials = [];
+
     protected array $initialRoomDefinitions = [];
 
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -43,7 +41,7 @@ class CreateTenant extends CreateRecord
             ->all();
 
         unset($data['initial_rooms']);
-		
+
         $this->adminCredentials = [
             'name' => $data['admin_name'] ?? null,
             'email' => $data['admin_email'] ?? null,
@@ -61,24 +59,24 @@ class CreateTenant extends CreateRecord
         if ($data['domain_type'] === 'subdomain') {
             $sub = env('APP_DOMAIN');
             // Store only the subdomain part, not the full domain
-            $data['domain'] = Str::slug($data['domain']) . '.' . $sub;
+            $data['domain'] = Str::slug($data['domain']).'.'.$sub;
         }
-        
+
         // Ensure database name follows the standard format
         $data['database'] = Str::snake($data['database']);
-		
+
         return $data;
     }
 
-    //after creating a tenant, redirect to the tenant's dashboard
+    // after creating a tenant, redirect to the tenant's dashboard
     protected function afterCreate(): void
     {
         try {
-            //createTenant:
-            //create the database
-            DB::statement('CREATE DATABASE IF NOT EXISTS ' . $this->record->database);
+            // createTenant:
+            // create the database
+            DB::statement('CREATE DATABASE IF NOT EXISTS '.$this->record->database);
 
-            //call artisan command to create the database
+            // call artisan command to create the database
             // Artisan::call with correct syntax
             Log::info([
                 'artisanCommand' => 'migrate:fresh --path=database/migrations/tenant --database=tenant',
@@ -92,13 +90,13 @@ class CreateTenant extends CreateRecord
                 'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder',
                 '--tenant' => $this->record->id,
             ]);
-            //php artisan tenants:artisan "migrate --database=tenant --seed"
+            // php artisan tenants:artisan "migrate --database=tenant --seed"
             Artisan::call('tenants:artisan', [
                 'artisanCommand' => 'db:seed --class=TenantDatabaseSeeder',
                 '--tenant' => $this->record->id,
             ]);
             Log::info('permission:cache-reset');
-            //php artisan permission:cache-reset
+            // php artisan permission:cache-reset
             Artisan::call('permission:cache-reset');
             app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
@@ -118,7 +116,7 @@ class CreateTenant extends CreateRecord
 
             $this->adminCredentials = [];
         } catch (\Exception $e) {
-            Log::error('Error creating tenant: ' . $e->getMessage());
+            Log::error('Error creating tenant: '.$e->getMessage());
         }
     }
 

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('guest_id')->constrained('guests')->cascadeOnDelete(); // Changed from foreignUuid to foreignId
             $table->foreignId('room_id')->constrained()->cascadeOnDelete();
             $table->foreignId('consumable_id')->nullable()->cascadeOnDelete();
-			$table->string('activity_type')->default('Guest Request');
+            $table->string('activity_type')->default('Guest Request');
             $table->string('request_type');
             $table->text('description')->nullable();
             $table->string('status')->default('PENDING');

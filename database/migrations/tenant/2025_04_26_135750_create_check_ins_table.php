@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id(); // Changed from uuid to auto-incrementing ID
             $table->foreignId('guest_id')->constrained('guests')->cascadeOnDelete(); // Changed from foreignUuid to foreignId
             $table->foreignId('room_id')->constrained()->cascadeOnDelete();
-			$table->string('activity_type')->default('Check-In');
+            $table->string('activity_type')->default('Check-In');
             $table->dateTime('date_of_arrival');
             $table->dateTime('date_of_departure')->nullable();
-            $table->string('qr_code')->nullable();
+            $table->text('qr_code')->nullable();
             // Removed legacy room string field
             $table->timestamps();
         });

@@ -6,7 +6,6 @@ use App\Filament\Resources\Tenant\GuestResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 
 class ViewGuest extends ViewRecord
 {
@@ -25,7 +24,7 @@ class ViewGuest extends ViewRecord
     protected function authorizeAccess(): void
     {
         abort_unless(
-            Auth::guard('tenant')->check() && 
+            Auth::guard('tenant')->check() &&
             Auth::guard('tenant')->user()->can('view guest'),
             403
         );

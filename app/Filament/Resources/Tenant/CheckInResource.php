@@ -6,31 +6,32 @@ use App\Filament\Resources\Tenant\CheckInResource\Pages;
 use App\Filament\Resources\Tenant\CheckInResource\RelationManagers;
 use App\Filament\Traits\HasPermissionBasedAccess;
 use App\Models\CheckIn;
-use App\Models\Guest;
-use App\Models\Room;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
 class CheckInResource extends Resource
 {
-	use HasPermissionBasedAccess;
+    use HasPermissionBasedAccess;
+
     public static function shouldRegisterNavigation(): bool
     {
-        return true;//Auth::guard('tenant')->check() && 
-               //Auth::guard('tenant')->user()->can('view check-in');
+        return true; // Auth::guard('tenant')->check() &&
+        // Auth::guard('tenant')->user()->can('view check-in');
     }
-    
+
     protected static ?string $model = CheckIn::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-key';
+
     protected static ?string $navigationGroup = 'User Management';
+
     protected static ?string $modelLabel = 'Check-In';
+
     protected static ?string $pluralModelLabel = 'Manual Check-Ins';
 
     public static function form(Form $form): Form
@@ -129,10 +130,10 @@ class CheckInResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->disabled(fn () => ! Auth::guard('tenant')->user()->can('delete check-in'))
-                        //->tooltip(fn (bool $disabled) => $disabled 
-                         //   ? 'You don\'t have permission to delete check-ins' 
-                          //  : 'Delete selected check-ins'),
+                        ->disabled(fn () => ! Auth::guard('tenant')->user()->can('delete check-in')),
+                    // ->tooltip(fn (bool $disabled) => $disabled
+                    //   ? 'You don\'t have permission to delete check-ins'
+                    //  : 'Delete selected check-ins'),
                 ]),
             ])
             ->defaultSort('date_of_arrival', 'desc');
@@ -141,7 +142,7 @@ class CheckInResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //RelationManagers\ConsumablesRelationManager::class,
+            // RelationManagers\ConsumablesRelationManager::class,
         ];
     }
 

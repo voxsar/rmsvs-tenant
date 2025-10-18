@@ -10,23 +10,25 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
 class ConsumableResource extends Resource
 {
     use HasPermissionBasedAccess;
+
     protected static ?string $model = Consumable::class;
-	
+
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('view consumable');
     }
+
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+
     protected static ?string $navigationGroup = 'Settings';
-	protected static ?int $navigationSort = 1;
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -79,26 +81,26 @@ class ConsumableResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('view consumable'))
-                    ->tooltip(fn (Tables\Actions\ViewAction $action): string => $action->isDisabled() 
-                        ? 'You don\'t have permission to view consumables' 
+                    ->tooltip(fn (Tables\Actions\ViewAction $action): string => $action->isDisabled()
+                        ? 'You don\'t have permission to view consumables'
                         : 'View this consumable'),
                 Tables\Actions\EditAction::make()
                     ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('update consumable'))
-                    ->tooltip(fn (Tables\Actions\EditAction $action): string => $action->isDisabled() 
-                        ? 'You don\'t have permission to edit consumables' 
+                    ->tooltip(fn (Tables\Actions\EditAction $action): string => $action->isDisabled()
+                        ? 'You don\'t have permission to edit consumables'
                         : 'Edit this consumable'),
                 Tables\Actions\DeleteAction::make()
                     ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('delete consumable'))
-                    ->tooltip(fn (Tables\Actions\DeleteAction $action): string => $action->isDisabled() 
-                        ? 'You don\'t have permission to delete consumables' 
+                    ->tooltip(fn (Tables\Actions\DeleteAction $action): string => $action->isDisabled()
+                        ? 'You don\'t have permission to delete consumables'
                         : 'Delete this consumable'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('delete consumable'))
-                        ->tooltip(fn (Tables\Actions\DeleteBulkAction $action): string => $action->isDisabled() 
-                            ? 'You don\'t have permission to delete consumables' 
+                        ->tooltip(fn (Tables\Actions\DeleteBulkAction $action): string => $action->isDisabled()
+                            ? 'You don\'t have permission to delete consumables'
                             : 'Delete selected consumables'),
                 ]),
             ]);

@@ -10,7 +10,8 @@ class ModelHasPermission extends Pivot
     //
     use UsesTenantConnection;
 
-	protected $table = 'model_has_permissions';
-	//guarded
-	protected $guarded = [];
+    protected $table = 'model_has_permissions';
+
+    // guarded
+    protected $guarded = [];
 }

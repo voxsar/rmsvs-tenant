@@ -2,29 +2,30 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Guest;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
 
 class AgeDistributionChart extends ChartWidget
 {
     protected static ?string $heading = 'Age Distribution';
+
     protected static ?string $maxHeight = '300px';
+
     protected static ?string $pollingInterval = '60s';
 
     protected function getData(): array
     {
         // Using the age_type field from the guests table
-        $data = DB::connection("tenant")->table('guests')
-            ->select('age_type', DB::connection("tenant")->raw('count(*) as count'))
+        $data = DB::connection('tenant')->table('guests')
+            ->select('age_type', DB::connection('tenant')->raw('count(*) as count'))
             ->groupBy('age_type')
             ->get();
-            
+
         // Alternative approach using date_of_birth if needed:
         /*
         $data = DB::connection("tenant")->table('guests')
             ->select(
-                DB::connection("tenant")->raw('CASE 
+                DB::connection("tenant")->raw('CASE
                     WHEN TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) < 18 THEN "Child"
                     WHEN TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) < 65 THEN "Adult"
                     ELSE "Senior" END as age_type'),

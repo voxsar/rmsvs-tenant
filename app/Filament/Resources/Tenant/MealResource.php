@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Tenant;
 
 use App\Filament\Resources\Tenant\MealResource\Pages;
-use App\Filament\Resources\Tenant\MealResource\RelationManagers;
 use App\Filament\Traits\HasPermissionBasedAccess;
 use App\Models\Meal;
 use Filament\Forms;
@@ -12,7 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
 class MealResource extends Resource
@@ -22,14 +20,18 @@ class MealResource extends Resource
     // Show in navigation menu only if user has permission to view meals
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('view meal');
     }
+
     protected static ?string $model = Meal::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cake';
+
     protected static ?string $navigationGroup = 'Settings';
+
     protected static ?string $modelLabel = 'Meals';
+
     protected static ?string $pluralModelLabel = 'Meals';
 
     public static function form(Form $form): Form
@@ -107,26 +109,26 @@ class MealResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('view meal'))
-                    ->tooltip(fn (Tables\Actions\ViewAction $action): string => $action->isDisabled() 
-                        ? 'You don\'t have permission to view meals' 
+                    ->tooltip(fn (Tables\Actions\ViewAction $action): string => $action->isDisabled()
+                        ? 'You don\'t have permission to view meals'
                         : 'View this meal'),
                 Tables\Actions\EditAction::make()
                     ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('update meal'))
-                    ->tooltip(fn (Tables\Actions\EditAction $action): string => $action->isDisabled() 
-                        ? 'You don\'t have permission to edit meals' 
+                    ->tooltip(fn (Tables\Actions\EditAction $action): string => $action->isDisabled()
+                        ? 'You don\'t have permission to edit meals'
                         : 'Edit this meal'),
                 Tables\Actions\DeleteAction::make()
                     ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('delete meal'))
-                    ->tooltip(fn (Tables\Actions\DeleteAction $action): string => $action->isDisabled() 
-                        ? 'You don\'t have permission to delete meals' 
+                    ->tooltip(fn (Tables\Actions\DeleteAction $action): string => $action->isDisabled()
+                        ? 'You don\'t have permission to delete meals'
                         : 'Delete this meal'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('delete meal'))
-                        ->tooltip(fn (Tables\Actions\DeleteBulkAction $action): string => $action->isDisabled() 
-                            ? 'You don\'t have permission to delete meals' 
+                        ->tooltip(fn (Tables\Actions\DeleteBulkAction $action): string => $action->isDisabled()
+                            ? 'You don\'t have permission to delete meals'
                             : 'Delete selected meals'),
                 ]),
             ])
@@ -153,25 +155,25 @@ class MealResource extends Resource
     // Permission-based access controls
     public static function canCreate(): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('create meal');
     }
-    
+
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('update meal');
     }
-    
+
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('delete meal');
     }
-    
+
     public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('view meal');
     }
 }

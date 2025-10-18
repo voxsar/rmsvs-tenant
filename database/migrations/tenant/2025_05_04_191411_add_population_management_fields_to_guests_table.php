@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('pps_number')->nullable();
             $table->string('iban')->nullable();
             $table->string('job_title')->nullable();
-            
+
             // Field for Residents (room number will be directly associated)
             $table->integer('assigned_room_id')->nullable();
-            
+
             // Field to track authorized absences for Residents
             $table->boolean('authorized_absence')->default(false);
         });
@@ -32,11 +32,11 @@ return new class extends Migration
     {
         Schema::table('guests', function (Blueprint $table) {
             $table->dropColumn([
-                'pps_number', 
-                'iban', 
-                'job_title', 
+                'pps_number',
+                'iban',
+                'job_title',
                 'assigned_room_id',
-                'authorized_absence'
+                'authorized_absence',
             ]);
         });
     }

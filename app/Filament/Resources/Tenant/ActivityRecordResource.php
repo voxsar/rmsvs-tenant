@@ -21,40 +21,45 @@ use Illuminate\Support\Facades\Log;
 class ActivityRecordResource extends Resource
 {
     use HasPermissionBasedAccess;
-    
+
     protected static ?string $model = CheckIn::class; // We'll use CheckIn as the base model but override the query
-    
+
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+
     protected static ?string $navigationGroup = 'Guest Requests';
+
     protected static ?string $navigationLabel = 'All Records';
+
     protected static ?string $modelLabel = 'Activity Record';
+
     protected static ?string $pluralModelLabel = 'Activity Records';
+
     protected static ?int $navigationSort = 1; // Show at top of Guest Requests group
-    
+
     public static function shouldRegisterNavigation(): bool
     {
         // Check if user has permission to view any of the record types
-        if (!Auth::guard('tenant')->check()) {
+        if (! Auth::guard('tenant')->check()) {
             return false;
         }
-        
+
         $user = Auth::guard('tenant')->user();
-        
-        return $user->can('view check-in') || 
-               $user->can('view guest-request') || 
+
+        return $user->can('view check-in') ||
+               $user->can('view guest-request') ||
                $user->can('view meal-record');
     }
-    
+
     public static function canAccess(): bool
     {
-        if (!Auth::guard('tenant')->check()) {
+        if (! Auth::guard('tenant')->check()) {
             return false;
         }
-        
+
         $user = Auth::guard('tenant')->user();
-        
-        return $user->can('view check-in') || 
-               $user->can('view guest-request') || 
+
+        return $user->can('view check-in') ||
+               $user->can('view guest-request') ||
                $user->can('view meal-record');
     }
 
@@ -79,23 +84,23 @@ class ActivityRecordResource extends Resource
                         default => 'gray',
                     })
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('guest_name')
                     ->label('Guest')
                     ->searchable(['first_name', 'last_name'])
                     ->sortable(['first_name']),
-                    
+
                 Tables\Columns\TextColumn::make('room_no')
                     ->label('Room')
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => $record->room_building ? "Building: {$record->room_building}, Floor: {$record->room_floor}" : null),
-                    
+
                 Tables\Columns\TextColumn::make('description')
                     ->label('Details')
                     ->limit(50)
                     ->searchable(),
-                    
+
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn ($state): string => match ($state) {
@@ -107,7 +112,7 @@ class ActivityRecordResource extends Resource
                         default => 'gray',
                     })
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date')
                     ->dateTime()
@@ -122,7 +127,7 @@ class ActivityRecordResource extends Resource
                         'Guest Request' => 'Guest Request',
                         'Meal Record' => 'Meal Record',
                     ]),
-                    
+
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'PENDING' => 'Pending',
@@ -146,14 +151,14 @@ class ActivityRecordResource extends Resource
                     ->color('success')
                     ->url(route('filament.admin.resources.tenant.check-ins.create'))
                     ->visible(fn () => Auth::guard('tenant')->check() && Auth::guard('tenant')->user()->can('create check-in')),
-                    
+
                 Tables\Actions\Action::make('create_request')
                     ->label('New Guest Request')
                     ->icon('heroicon-o-clipboard-document-list')
                     ->color('warning')
                     ->url(route('filament.admin.resources.tenant.custom-requests.create'))
                     ->visible(fn () => Auth::guard('tenant')->check() && Auth::guard('tenant')->user()->can('create guest-request')),
-                    
+
                 Tables\Actions\Action::make('create_meal')
                     ->label('New Meal Record')
                     ->icon('heroicon-o-cake')
@@ -163,33 +168,32 @@ class ActivityRecordResource extends Resource
             ])
             ->bulkActions([
                 // No bulk actions for this unified view
-				 Tables\Actions\BulkActionGroup::make([
-				     Tables\Actions\BulkAction::make('delete')
-				         ->label('Delete Selected')
-				        ->icon('heroicon-o-trash')
-				         ->action(fn (Collection $records) => $records->each->delete())
-				         ->requiresConfirmation(),
-						
-					//approve button
-					Tables\Actions\BulkAction::make('approve')
-							->label('Approve Selected')
-							->icon('heroicon-o-check')
-							->action(function (Collection $records) {
-								foreach ($records as $record) {
-									if ($record->status === 'PENDING') {
-										$record->update(['status' => 'APPROVED']);
-									}
-								}
-							})
-							->requiresConfirmation()
-					
-				
-				 ])
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('delete')
+                        ->label('Delete Selected')
+                        ->icon('heroicon-o-trash')
+                        ->action(fn (Collection $records) => $records->each->delete())
+                        ->requiresConfirmation(),
+
+                    // approve button
+                    Tables\Actions\BulkAction::make('approve')
+                        ->label('Approve Selected')
+                        ->icon('heroicon-o-check')
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                if ($record->status === 'PENDING') {
+                                    $record->update(['status' => 'APPROVED']);
+                                }
+                            }
+                        })
+                        ->requiresConfirmation(),
+
+                ]),
             ])
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25, 50, 100]);
     }
-    
+
     public static function getUnifiedQuery(): Builder
     {
         // Create union query using raw SQL wrapped in a proper Eloquent builder
@@ -197,7 +201,7 @@ class ActivityRecordResource extends Resource
             ->select([
                 'check_ins.activity_type as activity_type',
                 'check_ins.id',
-                'check_ins.guest_id', 
+                'check_ins.guest_id',
                 'check_ins.room_id',
                 DB::raw("CONCAT(guests.first_name, ' ', guests.last_name) as guest_name"),
                 'guests.first_name as guest_first_name',
@@ -215,7 +219,7 @@ class ActivityRecordResource extends Resource
                 END as status"),
                 'check_ins.created_at',
                 'check_ins.updated_at',
-                DB::raw("'check_in' as record_type")
+                DB::raw("'check_in' as record_type"),
             ])
             ->join('guests', 'check_ins.guest_id', '=', 'guests.id')
             ->join('rooms', 'check_ins.room_id', '=', 'rooms.id');
@@ -225,7 +229,7 @@ class ActivityRecordResource extends Resource
                 'custom_requests.activity_type as activity_type',
                 'custom_requests.id',
                 'custom_requests.guest_id',
-                'custom_requests.room_id', 
+                'custom_requests.room_id',
                 DB::raw("CONCAT(guests.first_name, ' ', guests.last_name) as guest_name"),
                 'guests.first_name as guest_first_name',
                 'guests.last_name as guest_last_name',
@@ -236,7 +240,7 @@ class ActivityRecordResource extends Resource
                 'custom_requests.status',
                 'custom_requests.created_at',
                 'custom_requests.updated_at',
-                DB::raw("'custom_request' as record_type")
+                DB::raw("'custom_request' as record_type"),
             ])
             ->join('guests', 'custom_requests.guest_id', '=', 'guests.id')
             ->join('rooms', 'custom_requests.room_id', '=', 'rooms.id');
@@ -248,7 +252,7 @@ class ActivityRecordResource extends Resource
                 'meal_records.guest_id',
                 'meal_records.room_id',
                 DB::raw("CONCAT(guests.first_name, ' ', guests.last_name) as guest_name"),
-                'guests.first_name as guest_first_name', 
+                'guests.first_name as guest_first_name',
                 'guests.last_name as guest_last_name',
                 'rooms.room_no',
                 'rooms.building as room_building',
@@ -257,20 +261,21 @@ class ActivityRecordResource extends Resource
                 DB::raw("'Completed' as status"),
                 'meal_records.created_at',
                 'meal_records.updated_at',
-                DB::raw("'meal_record' as record_type")
+                DB::raw("'meal_record' as record_type"),
             ])
             ->join('guests', 'meal_records.guest_id', '=', 'guests.id')
             ->join('rooms', 'meal_records.room_id', '=', 'rooms.id')
             ->leftJoin('meals', 'meal_records.meal_id', '=', 'meals.id');
 
         // Use unionAll to preserve all records and maintain column order from first query
-		$unifiedQuery = $checkInsQuery
-			->unionAll($requestsQuery)
-			->unionAll($mealRecordsQuery);
-		//Log::debug('Unified Query: ' . $unifiedQuery->get());
+        $unifiedQuery = $checkInsQuery
+            ->unionAll($requestsQuery)
+            ->unionAll($mealRecordsQuery);
+
+        // Log::debug('Unified Query: ' . $unifiedQuery->get());
         return $unifiedQuery;
     }
-    
+
     protected static function getRecordUrl($record): string
     {
         return match ($record->record_type) {
@@ -292,22 +297,22 @@ class ActivityRecordResource extends Resource
             'index' => Pages\ListActivityRecords::route('/'),
         ];
     }
-    
+
     public static function canCreate(): bool
     {
         return false; // Disable direct creation since we use specific resource links
     }
-    
+
     public static function canEdit($record): bool
     {
         return false; // Disable direct editing since we redirect to specific resources
     }
-    
+
     public static function canDelete($record): bool
     {
         return false; // Disable deletion from unified view
     }
-    
+
     public static function getModelLabel(): string
     {
         return 'activity-record';

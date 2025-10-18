@@ -8,13 +8,13 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Scanner extends Model
 {
-	use UsesTenantConnection;
     use HasFactory;
+    use UsesTenantConnection;
 
-	protected $fillable = [
-		'name',
-		'location',
-		'status',
-		'type',
-	];
+    protected $fillable = [
+        'name',
+        'location',
+        'status',
+        'type',
+    ];
 }

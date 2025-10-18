@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('meals', function (Blueprint $table) {
             $table->id(); // Changed from uuid to auto-incrementing ID
-            //$table->foreignId('check_in_id')->constrained('check_ins')->cascadeOnDelete(); // Changed from foreignUuid to foreignId
+            // $table->foreignId('check_in_id')->constrained('check_ins')->cascadeOnDelete(); // Changed from foreignUuid to foreignId
             $table->time('range_start');
-			$table->time('range_end');
+            $table->time('range_end');
             $table->string('meal_type');
             $table->json('week_day');
             $table->timestamps();

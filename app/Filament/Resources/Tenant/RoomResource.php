@@ -3,34 +3,36 @@
 namespace App\Filament\Resources\Tenant;
 
 use App\Filament\Resources\Tenant\RoomResource\Pages;
-use App\Filament\Resources\Tenant\RoomResource\RelationManagers;
+use App\Filament\Traits\HasPermissionBasedAccess;
 use App\Models\Room;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
-use App\Filament\Traits\HasPermissionBasedAccess;
 
 class RoomResource extends Resource
 {
     use HasPermissionBasedAccess;
+
     // Show in navigation menu only if user has permission to view rooms
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('view room');
     }
 
     protected static ?string $model = Room::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-home';
+
     protected static ?string $navigationLabel = 'Rooms';
+
     protected static ?string $navigationGroup = 'Property Management';
+
     protected static ?int $navigationSort = 1;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -51,7 +53,7 @@ class RoomResource extends Resource
                             ->options([
                                 'available' => 'Available',
                                 'occupied' => 'Occupied',
-                                'maintenance' => 'Under Maintenance'
+                                'maintenance' => 'Under Maintenance',
                             ])
                             ->default('available')
                             ->required(),
@@ -95,13 +97,19 @@ class RoomResource extends Resource
                     ->label('Occupancy')
                     ->formatStateUsing(function ($record) {
                         $currentOccupants = $record->getCurrentOccupantsCount();
+
                         return "{$currentOccupants} / {$record->max_occupants}";
                     })
                     ->badge()
                     ->color(function ($record) {
                         $currentOccupants = $record->getCurrentOccupantsCount();
-                        if ($currentOccupants === 0) return 'gray';
-                        if ($currentOccupants < $record->max_occupants) return 'success';
+                        if ($currentOccupants === 0) {
+                            return 'gray';
+                        }
+                        if ($currentOccupants < $record->max_occupants) {
+                            return 'success';
+                        }
+
                         return 'warning';
                     }),
                 Tables\Columns\TextColumn::make('created_at')
@@ -124,16 +132,16 @@ class RoomResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('update room'))
-                    ->tooltip(fn (Tables\Actions\EditAction $action): string => $action->isDisabled() 
-                        ? 'You don\'t have permission to edit rooms' 
+                    ->tooltip(fn (Tables\Actions\EditAction $action): string => $action->isDisabled()
+                        ? 'You don\'t have permission to edit rooms'
                         : 'Edit this room'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->disabled(fn (): bool => ! Auth::guard('tenant')->user()->can('delete room'))
-                        ->tooltip(fn (Tables\Actions\DeleteBulkAction $action): string => $action->isDisabled() 
-                            ? 'You don\'t have permission to delete rooms' 
+                        ->tooltip(fn (Tables\Actions\DeleteBulkAction $action): string => $action->isDisabled()
+                            ? 'You don\'t have permission to delete rooms'
                             : 'Delete selected rooms'),
                 ]),
             ]);
@@ -154,23 +162,23 @@ class RoomResource extends Resource
             'edit' => Pages\EditRoom::route('/{record}/edit'),
         ];
     }
-    
+
     // Permission-based access controls
     public static function canCreate(): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('create room');
     }
-    
+
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('update room');
     }
-    
+
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return Auth::guard('tenant')->check() && 
+        return Auth::guard('tenant')->check() &&
                Auth::guard('tenant')->user()->can('delete room');
     }
 }

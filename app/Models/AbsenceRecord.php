@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 use Illuminate\Support\Carbon;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class AbsenceRecord extends Model
 {
@@ -60,11 +60,12 @@ class AbsenceRecord extends Model
      */
     public function calculateDuration(): ?int
     {
-        if (!$this->start_date) {
+        if (! $this->start_date) {
             return null;
         }
 
         $endDate = $this->end_date ?? Carbon::now();
+
         return $this->start_date->diffInHours($endDate);
     }
 
@@ -80,7 +81,7 @@ class AbsenceRecord extends Model
     /**
      * Complete an absence record when a guest returns
      */
-    public function completeAbsence(Carbon $endDate = null): void
+    public function completeAbsence(?Carbon $endDate = null): void
     {
         $this->end_date = $endDate ?? Carbon::now();
         $this->status = 'completed';

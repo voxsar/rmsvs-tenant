@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('scanners', function (Blueprint $table) {
             $table->id();
-			$table->string('name');
-			//location
-			$table->string('location');
-			//status
-			$table->enum('status', ['active', 'inactive'])->default('active');
-			//type
-			$table->string('type' )->default('door');
+            $table->string('name');
+            // location
+            $table->string('location');
+            // status
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            // type
+            $table->string('type')->default('door');
             $table->timestamps();
         });
     }

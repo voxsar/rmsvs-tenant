@@ -3,9 +3,8 @@
 namespace App\Filament\Widgets;
 
 use App\Models\AbsenceRecord;
-use App\Models\Guest;
-use Filament\Tables;
 use Filament\Forms;
+use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,7 +13,8 @@ use Illuminate\Support\Carbon;
 class AbsenceHistoryWidget extends BaseWidget
 {
     protected static ?string $heading = 'Absence History';
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -45,21 +45,21 @@ class AbsenceHistoryWidget extends BaseWidget
                     ->label('Duration')
                     ->getStateUsing(function (AbsenceRecord $record) {
                         if ($record->duration_hours) {
-                            return $record->duration_hours > 24 
-                                ? floor($record->duration_hours / 24) . ' days, ' . ($record->duration_hours % 24) . ' hours' 
-                                : $record->duration_hours . ' hours';
+                            return $record->duration_hours > 24
+                                ? floor($record->duration_hours / 24).' days, '.($record->duration_hours % 24).' hours'
+                                : $record->duration_hours.' hours';
                         }
 
-                        if (!$record->start_date) {
+                        if (! $record->start_date) {
                             return null;
                         }
 
                         $endDate = $record->end_date ?? Carbon::now();
                         $hours = $record->start_date->diffInHours($endDate);
-                        
-                        return $hours > 24 
-                            ? floor($hours / 24) . ' days, ' . ($hours % 24) . ' hours' 
-                            : $hours . ' hours';
+
+                        return $hours > 24
+                            ? floor($hours / 24).' days, '.($hours % 24).' hours'
+                            : $hours.' hours';
                     })
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query->orderBy('duration_hours', $direction);
@@ -108,6 +108,7 @@ class AbsenceHistoryWidget extends BaseWidget
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['duration_filter'], function (Builder $query, $hours) {
                             $hours = (int) $hours;
+
                             return $query->where(function ($query) use ($hours) {
                                 // For completed absences with duration
                                 $query->where('duration_hours', '>=', $hours)

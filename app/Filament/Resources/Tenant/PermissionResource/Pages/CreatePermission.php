@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Tenant\PermissionResource\Pages;
 
 use App\Filament\Resources\Tenant\PermissionResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreatePermission extends CreateRecord

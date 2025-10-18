@@ -23,7 +23,7 @@ class EditTransit extends EditRecord
     protected function authorizeAccess(): void
     {
         abort_unless(
-            Auth::guard('tenant')->check() && 
+            Auth::guard('tenant')->check() &&
             Gate::forUser(Auth::guard('tenant')->user())->check('update transit'),
             403
         );

@@ -9,21 +9,21 @@ use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Meal extends Model
 {
-	use UsesTenantConnection;
     use HasFactory;
+    use UsesTenantConnection;
 
     protected $fillable = [
         'range_start',
         'range_end',
-		'week_day',
+        'week_day',
         'meal_type',
     ];
 
-		protected $casts = [
-			'range_start' => 'datetime',
-			'range_end' => 'datetime',
-			'week_day' => 'array',
-		];
+    protected $casts = [
+        'range_start' => 'datetime',
+        'range_end' => 'datetime',
+        'week_day' => 'array',
+    ];
 
     /**
      * The possible meal types.
@@ -41,10 +41,10 @@ class Meal extends Model
         'MONDAY' => 'Monday',
         'TUESDAY' => 'Tuesday',
         'WEDNESDAY' => 'Wednesday',
-		'THURSDAY' => 'Thursday',
-		'FRIDAY' => 'Friday',
-		'SATURDAY' => 'Saturday',
-		'SUNDAY' => 'Sunday',
+        'THURSDAY' => 'Thursday',
+        'FRIDAY' => 'Friday',
+        'SATURDAY' => 'Saturday',
+        'SUNDAY' => 'Sunday',
     ];
 
     public function checkIn(): BelongsTo

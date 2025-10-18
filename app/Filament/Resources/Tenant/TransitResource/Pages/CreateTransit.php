@@ -14,7 +14,7 @@ class CreateTransit extends CreateRecord
     protected function authorizeAccess(): void
     {
         abort_unless(
-            Auth::guard('tenant')->check() && 
+            Auth::guard('tenant')->check() &&
             Gate::forUser(Auth::guard('tenant')->user())->check('create transit'),
             403
         );

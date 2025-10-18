@@ -30,35 +30,35 @@ class RegenerateQrCodes extends Command
 
         // Get all active check-ins
         $checkIns = CheckIn::all();
-        
+
         $this->info("Found {$checkIns->count()} active check-ins");
-        
+
         $bar = $this->output->createProgressBar($checkIns->count());
         $bar->start();
-        
+
         $regenerated = 0;
-        
+
         foreach ($checkIns as $checkIn) {
             if ($checkIn->room && $checkIn->guest) {
                 // Ensure the guest-room relationship exists
                 $exists = $checkIn->guest->rooms()->where('room_id', $checkIn->room->id)->exists();
-                
-                if (!$exists) {
+
+                if (! $exists) {
                     // Create the relationship
                     $checkIn->guest->rooms()->attach($checkIn->room->id);
                 }
-                
+
                 // Generate QR code
                 $qrCode = $checkIn->room->generateGuestRoomQrCode($checkIn->guest);
-                
+
                 if ($qrCode) {
                     $regenerated++;
                 }
             }
-            
+
             $bar->advance();
         }
-        
+
         $bar->finish();
         $this->newLine();
         $this->info("Successfully regenerated $regenerated QR codes");

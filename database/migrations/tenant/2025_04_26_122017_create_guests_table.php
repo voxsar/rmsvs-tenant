@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-	        Schema::create('guests', function (Blueprint $table) {
+        Schema::create('guests', function (Blueprint $table) {
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->date('date_of_birth')->nullable();
             $table->string('photo')->nullable();
             $table->enum('is_active', ['active', 'inactive'])->default('active');
-            $table->string('qr_code')->nullable();
+            $table->text('qr_code')->nullable();
             $table->enum('type', ['RESIDENT', 'STAFF', 'VISITORS'])->default('RESIDENT');
             // Drop added columns
             $table->timestamps();

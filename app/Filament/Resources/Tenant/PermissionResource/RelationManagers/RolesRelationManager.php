@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Tenant\PermissionResource\RelationManagers;
 
-use App\Models\Role;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;

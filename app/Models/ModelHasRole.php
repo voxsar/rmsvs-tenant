@@ -10,11 +10,11 @@ class ModelHasRole extends Pivot
     //
     use UsesTenantConnection;
 
-	protected $table = 'model_has_roles';
+    protected $table = 'model_has_roles';
 
-	//guarded
-	protected $guarded = [];
+    // guarded
+    protected $guarded = [];
 
-	//no timestamps
-	public $timestamps = false;
+    // no timestamps
+    public $timestamps = false;
 }
