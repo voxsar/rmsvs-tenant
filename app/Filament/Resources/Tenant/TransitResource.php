@@ -28,7 +28,9 @@ class TransitResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
-    protected static ?string $navigationGroup = 'Guest Requests';
+    protected static ?string $navigationGroup = 'Scans';
+
+    protected static ?string $navigationLabel = 'Transit Log';
 
     protected static ?string $modelLabel = 'In/Out Record';
 

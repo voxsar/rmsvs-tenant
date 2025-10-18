@@ -28,7 +28,9 @@ class CheckInResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
-    protected static ?string $navigationGroup = 'User Management';
+    protected static ?string $navigationGroup = 'Property';
+
+    protected static ?string $navigationLabel = 'Manual Check-Ins';
 
     protected static ?string $modelLabel = 'Check-In';
 

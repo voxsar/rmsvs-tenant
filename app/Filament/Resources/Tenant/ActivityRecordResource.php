@@ -26,15 +26,15 @@ class ActivityRecordResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = 'Guest Requests';
+    protected static ?string $navigationGroup = 'Scans';
 
-    protected static ?string $navigationLabel = 'All Records';
+    protected static ?string $navigationLabel = 'Scan History';
 
     protected static ?string $modelLabel = 'Activity Record';
 
     protected static ?string $pluralModelLabel = 'Activity Records';
 
-    protected static ?int $navigationSort = 1; // Show at top of Guest Requests group
+    protected static ?int $navigationSort = 1; // Show at top of Scans group
 
     public static function shouldRegisterNavigation(): bool
     {
