@@ -67,6 +67,7 @@ class Room extends Model
 
         $qrPath = $tenant.'/qrcodes/guest_rooms/';
         $fileName = 'guest_'.$guest->id.'_room_'.$this->id.'_checkin_'.$pivotRecord->id.'.svg';
+        $qrRelativePath = $qrPath.$fileName;
 
         // Simplified QR code content with just the essential IDs
         $qrContent = json_encode([
@@ -83,13 +84,14 @@ class Room extends Model
         $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)
             ->generate($qrContent);
 
-        Storage::put('public/'.$qrPath.$fileName, $qrCode);
+        Storage::put('public/'.$qrRelativePath, $qrCode);
 
-        // Update the pivot record
-        $pivotRecord->qr_code = $qrPath.$fileName;
-        $pivotRecord->save();
+        // Update the pivot record without firing model events to avoid recursive regeneration
+        if ($pivotRecord->qr_code !== $qrRelativePath) {
+            $pivotRecord->forceFill(['qr_code' => $qrRelativePath])->saveQuietly();
+        }
 
-        return $qrPath.$fileName;
+        return $qrRelativePath;
     }
 
     /**
