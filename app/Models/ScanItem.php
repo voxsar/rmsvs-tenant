@@ -15,11 +15,15 @@ class ScanItem extends Model
     use UsesTenantConnection;
 
     public const TYPE_ACCESS = 'access';
+
     public const TYPE_MEAL = 'meal';
+
     public const TYPE_CONSUMABLE = 'consumable';
 
     public const PERIOD_ALWAYS = 'always';
+
     public const PERIOD_WEEKDAYS = 'weekdays';
+
     public const PERIOD_CUSTOM = 'custom';
 
     protected $fillable = [

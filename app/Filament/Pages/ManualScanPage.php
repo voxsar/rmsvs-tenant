@@ -21,15 +21,15 @@ class ManualScanPage extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-qr-code';
 
-    protected static ?string $navigationLabel = 'Guest Requests';
+    protected static ?string $navigationLabel = 'Manual Scan';
 
-    protected static ?string $title = 'Guest Requests';
+    protected static ?string $title = 'Manual Scan';
 
     protected static ?string $slug = 'manual-scans';
 
-    protected static ?string $navigationGroup = 'Guest Management';
+    protected static ?string $navigationGroup = 'Scans';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public ?array $data = [];
 

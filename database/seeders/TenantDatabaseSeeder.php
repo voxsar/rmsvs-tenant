@@ -6,10 +6,10 @@ namespace Database\Seeders;
 use App\Models\Consumable;
 use App\Models\Guest;
 use App\Models\Meal;
-use App\Models\ScanItem;
-use App\Models\Permission;
 use App\Models\ModelHasRole;
+use App\Models\Permission;
 use App\Models\Role;
+use App\Models\ScanItem;
 use App\Models\Tenant;
 use App\Models\UserTenant;
 use Illuminate\Database\Seeder;
@@ -44,17 +44,17 @@ class TenantDatabaseSeeder extends Seeder
             'qr_code' => 'https://example.com/qr-code.png',
         ]);
 
-		UserTenant::create([
-			'name' => 'Tenant Admin',
+        UserTenant::create([
+            'name' => 'Tenant Admin',
             'email' => 'admin@solennico.com',
             'password' => bcrypt('12345678'),
-		]);
+        ]);
 
-		ModelHasRole::create([
-			'role_id' => Role::where('name', 'Manager')->first()->id,
-			'model_type' => "App\Models\UserTenant",
-			'model_id' => UserTenant::where('email', 'admin@solennico.com')->first()->id,
-		]);
+        ModelHasRole::create([
+            'role_id' => Role::where('name', 'Manager')->first()->id,
+            'model_type' => "App\Models\UserTenant",
+            'model_id' => UserTenant::where('email', 'admin@solennico.com')->first()->id,
+        ]);
 
         Meal::insert([
             [

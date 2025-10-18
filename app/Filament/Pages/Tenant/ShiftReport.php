@@ -37,5 +37,4 @@ class ShiftReport extends Page
     {
         return 'Daily Shift Report';
     }
-
 }
