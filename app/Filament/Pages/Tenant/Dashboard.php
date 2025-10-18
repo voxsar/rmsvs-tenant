@@ -3,13 +3,11 @@
 namespace App\Filament\Pages\Tenant;
 
 use App\Filament\Widgets\AbsenceTrackerWidget;
-use App\Filament\Widgets\AgeDistributionChart;
-use App\Filament\Widgets\BirthdaysWidget;
-use App\Filament\Widgets\GenderDistributionChart;
-use App\Filament\Widgets\OccupancyTrendChart;
-use App\Filament\Widgets\ResidentStatsOverview;
-use App\Filament\Widgets\ResidentTypeChart;
-use App\Filament\Widgets\TopNationalitiesChart;
+use App\Filament\Widgets\EmergencyRollCallWidget;
+use App\Filament\Widgets\LastShiftReportWidget;
+use App\Filament\Widgets\MissedConsumablesWidget;
+use App\Filament\Widgets\MissedMealsWidget;
+use App\Filament\Widgets\PersonsOnSiteWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
@@ -23,32 +21,15 @@ class Dashboard extends BaseDashboard
         return 'Resident Statistics Dashboard';
     }
 
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            ResidentStatsOverview::class,
-        ];
-    }
-
-    protected function getFooterWidgets(): array
-    {
-        return [];
-    }
-
-    /**
-     * Register all the custom widgets for the dashboard
-     */
     public function getWidgets(): array
     {
         return [
-            ResidentStatsOverview::class,
-            ResidentTypeChart::class,
-            AgeDistributionChart::class,
-            GenderDistributionChart::class,
-            TopNationalitiesChart::class,
-            OccupancyTrendChart::class,
-            BirthdaysWidget::class,
+            PersonsOnSiteWidget::class,
+            LastShiftReportWidget::class,
+            EmergencyRollCallWidget::class,
             AbsenceTrackerWidget::class,
+            MissedMealsWidget::class,
+            MissedConsumablesWidget::class,
         ];
     }
 }
