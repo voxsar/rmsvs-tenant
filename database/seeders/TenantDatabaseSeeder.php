@@ -7,6 +7,7 @@ use App\Models\Consumable;
 use App\Models\Guest;
 use App\Models\Meal;
 use App\Models\Permission;
+use App\Models\ModelHasRole;
 use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\UserTenant;
@@ -46,6 +47,12 @@ class TenantDatabaseSeeder extends Seeder
 			'name' => 'Tenant Admin',
             'email' => 'admin@solennico.com',
             'password' => bcrypt('12345678'),
+		]);
+
+		ModelHasRole::create([
+			'role_id' => Role::where('name', 'Manager')->first()->id,
+			'model_type' => "App\Models\UserTenant",
+			'model_id' => UserTenant::where('email', 'admin@solennico.com')->first()->id,
 		]);
 
         Meal::insert([
