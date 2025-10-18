@@ -28,6 +28,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('ePop')
+            ->brandLogo(asset('images/epop-logo.svg'))
+            ->brandLogoHeight('2.25rem')
             ->colors([
                 'primary' => Color::Amber,
             ])
