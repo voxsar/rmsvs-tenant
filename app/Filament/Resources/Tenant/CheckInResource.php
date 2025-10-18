@@ -50,7 +50,6 @@ class CheckInResource extends Resource
                             })
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->first_name} {$record->last_name}")
                             ->searchable(['first_name', 'last_name', 'email'])
-                            ->preload()
                             ->required(),
                         Forms\Components\DateTimePicker::make('date_of_arrival')
                             ->required(),
@@ -59,7 +58,6 @@ class CheckInResource extends Resource
                         Forms\Components\Select::make('room_id')
                             ->label('Room')
                             ->relationship('room', 'room_no')
-                            ->preload()
                             ->searchable()
                             ->required()
                             ->helperText('Multiple guests can be checked into the same room'),
