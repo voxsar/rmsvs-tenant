@@ -12,7 +12,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Filament\Notifications\Notification;
 
 class CheckInResource extends Resource
 {
@@ -133,6 +135,38 @@ class CheckInResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->disabled(fn () => ! Auth::guard('tenant')->user()->can('delete check-in')),
+                    Tables\Actions\BulkAction::make('generateQrCodes')
+                        ->label('Generate QR Codes')
+                        ->icon('heroicon-o-qr-code')
+                        ->action(function (Collection $records) {
+                            $generated = 0;
+                            foreach ($records as $checkIn) {
+                                if ($checkIn->guest && $checkIn->room) {
+                                    // Ensure guest-room relationship exists
+                                    $exists = $checkIn->guest->rooms()->where('room_id', $checkIn->room->id)->exists();
+                                    if (!$exists) {
+                                        $checkIn->guest->rooms()->attach($checkIn->room->id);
+                                    }
+                                    
+                                    // Generate QR code
+                                    $qrCode = $checkIn->room->generateGuestRoomQrCode($checkIn->guest);
+                                    if ($qrCode) {
+                                        $generated++;
+                                    }
+                                }
+                            }
+                            
+                            Notification::make()
+                                ->title('QR Codes Generated')
+                                ->body("Successfully generated {$generated} QR codes")
+                                ->success()
+                                ->send();
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('Generate QR Codes')
+                        ->modalDescription('This will generate QR codes for all selected check-ins that don\'t have them yet.')
+                        ->modalSubmitActionLabel('Generate')
+                        ->color('success'),
                     // ->tooltip(fn (bool $disabled) => $disabled
                     //   ? 'You don\'t have permission to delete check-ins'
                     //  : 'Delete selected check-ins'),

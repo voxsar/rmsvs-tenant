@@ -6,17 +6,16 @@ use App\Models\DailyReport;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Carbon;
 
-class DailyReportWidget extends Widget
+class DailyReportWidget extends Widget implements HasForms
 {
     use InteractsWithForms;
 
     protected static string $view = 'filament.widgets.daily-report-widget';
-
-    public ?Form $form = null;
 
     public ?array $data = [];
 

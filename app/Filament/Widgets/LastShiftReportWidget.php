@@ -6,12 +6,13 @@ use App\Models\DailyReport;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 
-class LastShiftReportWidget extends Widget
+class LastShiftReportWidget extends Widget implements HasForms
 {
     use InteractsWithForms;
 

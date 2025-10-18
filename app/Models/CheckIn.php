@@ -37,6 +37,18 @@ class CheckIn extends Pivot
         'date_of_departure' => 'datetime',
     ];
 
+    /**
+     * Get the QR code from the guest-room relationship
+     */
+    public function getQrCodeAttribute()
+    {
+        if ($this->guest && $this->room) {
+            $guestRoom = $this->guest->rooms()->where('room_id', $this->room_id)->first();
+            return $guestRoom ? $guestRoom->pivot->qr_code : null;
+        }
+        return null;
+    }
+
     public function guest(): BelongsTo
     {
         return $this->belongsTo(Guest::class);

@@ -84,6 +84,8 @@ class Guest extends Model
 
         if (! $tenant) {
             $tenant = 'default';
+        } else {
+            $tenant = $tenant->id;
         }
 
         $qrPath = $tenant.'/qrcodes/guests/';

@@ -405,4 +405,43 @@ class ScanController extends Controller
             'message' => 'Consumable request submitted successfully',
         ]);
     }
+
+    /**
+     * Generate QR code for a check-in
+     */
+    public function generateQrCode(CheckIn $checkIn)
+    {
+        try {
+            if ($checkIn->guest && $checkIn->room) {
+                // Ensure guest-room relationship exists
+                $exists = $checkIn->guest->rooms()->where('room_id', $checkIn->room->id)->exists();
+                
+                if (!$exists) {
+                    $checkIn->guest->rooms()->attach($checkIn->room->id);
+                }
+                
+                // Generate QR code
+                $qrCodePath = $checkIn->room->generateGuestRoomQrCode($checkIn->guest);
+                
+                if ($qrCodePath) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'QR code generated successfully',
+                        'qr_code_url' => \Storage::url($qrCodePath)
+                    ]);
+                }
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate QR code'
+            ], 400);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error generating QR code: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

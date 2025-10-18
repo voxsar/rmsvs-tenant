@@ -61,6 +61,8 @@ class Room extends Model
 
         if (! $tenant) {
             $tenant = 'default';
+        } else {
+            $tenant = $tenant->id;
         }
 
         $qrPath = $tenant.'/qrcodes/guest_rooms/';
