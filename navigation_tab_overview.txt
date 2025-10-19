@@ -23,9 +23,9 @@ The Filament admin panel organizes resources into navigation groups. Each resour
        - Permission: view guest
        - Has tabs: Active/Inactive (see Tab Implementation section)
      
-     * Manual Check-Ins
+     * Room Assignments
        - Icon: heroicon-o-key
-       - Label: "Manual Check-Ins"
+       - Label: "Room Assignments"
        - Permission: view check-in
      
      * Guest Requests
@@ -92,9 +92,9 @@ The Filament admin panel organizes resources into navigation groups. Each resour
        - Label: "Permissions"
        - Permission: view permission
      
-     * Consumables (Sort: 1)
+     * Scan Types (Sort: 1)
        - Icon: heroicon-o-shopping-bag
-       - Label: "Consumables"
+       - Label: "Scan Types"
        - Permission: view consumable
      
      * Meals

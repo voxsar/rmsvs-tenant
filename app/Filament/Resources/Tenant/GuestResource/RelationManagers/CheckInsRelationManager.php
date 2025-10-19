@@ -63,7 +63,7 @@ class CheckInsRelationManager extends RelationManager
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('consumables_count')
-                    ->label('Consumables')
+                    ->label('Scan Types')
                     ->counts('consumables'),
                 Tables\Columns\TextColumn::make('meal_count')
                     ->label('Meals')

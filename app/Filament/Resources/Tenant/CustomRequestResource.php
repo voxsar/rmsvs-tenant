@@ -18,8 +18,8 @@ class CustomRequestResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check() &&
-               Auth::guard('tenant')->user()->can('view guest-request');
+        return false;//Auth::guard('tenant')->check() &&
+               //Auth::guard('tenant')->user()->can('view guest-request');
     }
 
     protected static ?string $model = CustomRequest::class;
@@ -33,6 +33,8 @@ class CustomRequestResource extends Resource
     protected static ?string $modelLabel = 'Guest Request';
 
     protected static ?string $pluralModelLabel = 'Guest Requests';
+
+	
 
     public static function form(Form $form): Form
     {

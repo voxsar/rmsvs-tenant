@@ -45,7 +45,7 @@ The application has a well-organized navigation structure with 4 main groups:
 1. **Property Group** (4 resources)
    - Rooms (Sort: 1)
    - Profiles/Guests (Sort: 2) - Has Active/Inactive tabs
-   - Manual Check-Ins
+   - Room Assignments
    - Guest Requests
    - Shift Reports
 
@@ -61,7 +61,7 @@ The application has a well-organized navigation structure with 4 main groups:
    - Users (Sort: 1)
    - Roles (Sort: 2) - Hidden from navigation
    - Permissions (Sort: 3)
-   - Consumables
+   - Scan Types
    - Meals
 
 4. **Dashboard**

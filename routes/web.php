@@ -45,7 +45,7 @@ Route::middleware('tenant')->group(function () {
     // QR Code routes
     Route::post('/generate-qr-code/{checkIn}', [ScanController::class, 'generateQrCode'])->name('generate.qr.code');
 
-    // Consumables routes
+    //Scan Types routes
     Route::get('/consumables/{guest}/{room}', [ScanController::class, 'consumablesPage'])->name('consumables.page');
     Route::post('/consumables/request/{checkIn}', [ScanController::class, 'requestConsumable'])->name('consumables.request');
 });

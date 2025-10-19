@@ -32,11 +32,11 @@ class CheckInResource extends Resource
 
     protected static ?string $navigationGroup = 'Property';
 
-    protected static ?string $navigationLabel = 'Manual Check-Ins';
+    protected static ?string $navigationLabel = 'Room Assignments';
 
     protected static ?string $modelLabel = 'Check-In';
 
-    protected static ?string $pluralModelLabel = 'Manual Check-Ins';
+    protected static ?string $pluralModelLabel = 'Room Assignments';
 
     public static function form(Form $form): Form
     {
@@ -90,9 +90,8 @@ class CheckInResource extends Resource
                             ->modalSubmitAction(false)
                             ->modalCancelAction(false)
                     )
+					->view('filament.resources.qr-code')
                     ->square()
-                    ->visibility('private')
-                    ->disk('public')
                     ->size(40),
                 Tables\Columns\TextColumn::make('date_of_arrival')
                     ->dateTime()

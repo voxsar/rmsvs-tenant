@@ -67,7 +67,7 @@ class NavigationConfigurationTest extends TestCase
     {
         $resources = [
             ActivityRecordResource::class => 'Scan History',
-            CheckInResource::class => 'Manual Check-Ins',
+            CheckInResource::class => 'Room Assignments',
             CustomRequestResource::class => 'Guest Requests',
             GuestResource::class => null, // Uses pluralModelLabel
             MealRecordResource::class => 'Meal Scans',

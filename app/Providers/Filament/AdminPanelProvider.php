@@ -50,9 +50,17 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
                 ShiftReport::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+        	//->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
+				\App\Filament\Widgets\LastShiftReportWidget::class,
+				\App\Filament\Widgets\PersonsOnSiteWidget::class,
+				\App\Filament\Widgets\EmergencyRollCallWidget::class,
+				\App\Filament\Widgets\BirthdaysWidget::class,
+				\App\Filament\Widgets\AbsenceHistoryWidget::class,
+				\App\Filament\Widgets\MissedMealsWidget::class,
+				\App\Filament\Widgets\MissedConsumablesWidget::class,
+				\App\Filament\Widgets\ResidentStatsOverview::class,
+				\App\Filament\Widgets\AbsenceTrackerWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
