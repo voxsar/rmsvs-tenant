@@ -48,4 +48,7 @@ Route::middleware('tenant')->group(function () {
     // Consumables routes
     Route::get('/consumables/{guest}/{room}', [ScanController::class, 'consumablesPage'])->name('consumables.page');
     Route::post('/consumables/request/{checkIn}', [ScanController::class, 'requestConsumable'])->name('consumables.request');
+
+    // Project workflow designer
+    Route::view('/project-panel', 'project.panel')->name('project.panel');
 });
