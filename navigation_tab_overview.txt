@@ -58,11 +58,6 @@ The Filament admin panel organizes resources into navigation groups. Each resour
        - Permission: Tenant guard authentication required
        - Purpose: Manual scanning operations for check-ins, check-outs, meals, and door access
      
-     * Scan Items
-       - Icon: heroicon-o-rectangle-group
-       - Label: "Scan Items"
-       - Permission: view scan-item
-     
      * Scanners
        - Icon: heroicon-o-qr-code
        - Label: "Scanners"
@@ -92,10 +87,18 @@ The Filament admin panel organizes resources into navigation groups. Each resour
        - Label: "Permissions"
        - Permission: view permission
      
-     * Scan Types (Sort: 1)
+     * Scan Types (Sort: 1) - HIDDEN
        - Icon: heroicon-o-shopping-bag
        - Label: "Scan Types"
        - Permission: view consumable
+       - Note: Hidden from navigation (shouldRegisterNavigation returns false)
+       - Purpose: Functionality maintained for system use (CheckIn consumables, CustomRequest)
+     
+     * Scan Items
+       - Icon: heroicon-o-rectangle-group
+       - Label: "Scan Items"
+       - Permission: view scan-item
+       - Note: Moved from Scans group to Settings group
      
      * Meals
        - Icon: heroicon-o-cake
@@ -109,9 +112,12 @@ The Filament admin panel organizes resources into navigation groups. Each resour
      * PersonsOnSiteWidget
      * LastShiftReportWidget
      * EmergencyRollCallWidget
-     * AbsenceTrackerWidget
+     * BirthdaysWidget
      * MissedMealsWidget
      * MissedConsumablesWidget
+     * ResidentStatsOverview
+     * AbsenceTrackerWidget (Absences Longer than 24 Hours)
+   - Note: AbsenceHistoryWidget removed from dashboard (full history still accessible via data queries)
 
 ### Landlord Resources (Super Admin)
    - Tenants
@@ -214,6 +220,32 @@ The navigation and tab structure is fully implemented and working correctly:
 ✓ All navigation groups are properly organized
 ✓ Navigation labels are accurate and descriptive
 ✓ Tab implementation provides proper filtering
+✓ Permission-based access control is enforced
+✓ Code quality standards are met
+✓ All identified issues have been resolved
+
+## RECENT CHANGES (November 2025)
+
+### Feature Hide and Refactoring
+The following changes were made to streamline the UI and reduce clutter:
+
+1. **Removed AbsenceHistoryWidget from Dashboard**
+   - The full "Absence History" table widget was removed from the dashboard
+   - "Absences Longer than 24 Hours" widget (AbsenceTrackerWidget) remains visible
+   - Full absence history data is still accessible via direct queries if needed
+
+2. **Hidden "Scan Types" (ConsumableResource) from Navigation**
+   - ConsumableResource no longer appears in the navigation menu
+   - All functionality is maintained - routes, models, and relationships still work
+   - CheckIn consumables relation and CustomRequest consumable relation remain functional
+   - Resource can still be accessed directly via URL if needed
+
+3. **Moved "Scan Items" to Settings Group**
+   - ScanItemResource moved from "Scans" navigation group to "Settings" group
+   - This consolidates configuration-related items in one place
+   - "Scan Items" now appears alongside other system configuration options
+
+These changes maintain full system functionality while providing a cleaner, more focused user interface.
 ✓ Permission-based access control is enforced
 ✓ Code quality standards are met
 ✓ All identified issues have been resolved
