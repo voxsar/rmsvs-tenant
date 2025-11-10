@@ -52,13 +52,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             // ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                \App\Filament\Widgets\LastShiftReportWidget::class,
                 \App\Filament\Widgets\PersonsOnSiteWidget::class,
                 \App\Filament\Widgets\EmergencyRollCallWidget::class,
-                \App\Filament\Widgets\BirthdaysWidget::class,
                 \App\Filament\Widgets\MissedMealsWidget::class,
                 \App\Filament\Widgets\MissedConsumablesWidget::class,
-                \App\Filament\Widgets\ResidentStatsOverview::class,
                 \App\Filament\Widgets\AbsenceTrackerWidget::class,
             ])
             ->middleware([

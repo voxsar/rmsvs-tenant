@@ -25,7 +25,6 @@ class Dashboard extends BaseDashboard
     {
         return [
             PersonsOnSiteWidget::class,
-            LastShiftReportWidget::class,
             EmergencyRollCallWidget::class,
             AbsenceTrackerWidget::class,
             MissedMealsWidget::class,

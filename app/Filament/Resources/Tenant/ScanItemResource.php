@@ -54,7 +54,7 @@ class ScanItemResource extends Resource
                             ->required()
                             ->maxLength(255),
                         Select::make('type')
-                            ->label('Item Type')
+                            ->label('Scan Type')
                             ->options(ScanItem::types())
                             ->required()
                             ->live()
@@ -199,7 +199,7 @@ class ScanItemResource extends Resource
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('type')
-                    ->label('Type')
+                    ->label('Scan Type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         ScanItem::TYPE_ACCESS => 'success',
@@ -232,7 +232,7 @@ class ScanItemResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('type')
-                    ->label('Item Type')
+                    ->label('Scan Type')
                     ->options(ScanItem::types()),
                 SelectFilter::make('active_period_type')
                     ->label('Schedule Type')
