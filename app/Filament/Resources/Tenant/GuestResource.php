@@ -50,6 +50,7 @@ class GuestResource extends Resource
                             ->maxLength(255),
                         Forms\Components\TextInput::make('phone')
                             ->tel()
+                            ->required()
                             ->maxLength(20),
                         Forms\Components\Select::make('type')
                             ->options([

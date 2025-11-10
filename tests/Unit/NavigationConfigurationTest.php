@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Filament\Pages\ManualScanPage;
 use App\Filament\Pages\Tenant\Dashboard;
+use App\Filament\Pages\Tenant\EmergencyRollCall;
 use App\Filament\Pages\Tenant\ShiftReport;
 use App\Filament\Resources\Tenant\ActivityRecordResource;
 use App\Filament\Resources\Tenant\CheckInResource;
@@ -206,5 +207,33 @@ class NavigationConfigurationTest extends TestCase
                 "Resource {$resourceClass} should have navigationSort {$expectedSort}"
             );
         }
+    }
+
+    /**
+     * Test that EmergencyRollCall page has correct navigation configuration.
+     */
+    public function test_emergency_roll_call_page_navigation_configuration(): void
+    {
+        $reflection = new ReflectionClass(EmergencyRollCall::class);
+
+        // Check navigation group
+        $groupProperty = $reflection->getProperty('navigationGroup');
+        $groupProperty->setAccessible(true);
+        $this->assertEquals('Property', $groupProperty->getValue(), 'EmergencyRollCall should be in Property group');
+
+        // Check navigation label
+        $labelProperty = $reflection->getProperty('navigationLabel');
+        $labelProperty->setAccessible(true);
+        $this->assertEquals('Emergency Roll Call', $labelProperty->getValue(), 'EmergencyRollCall should have label "Emergency Roll Call"');
+
+        // Check navigation sort
+        $sortProperty = $reflection->getProperty('navigationSort');
+        $sortProperty->setAccessible(true);
+        $this->assertEquals(1, $sortProperty->getValue(), 'EmergencyRollCall should have sort order 1');
+
+        // Check navigation icon
+        $iconProperty = $reflection->getProperty('navigationIcon');
+        $iconProperty->setAccessible(true);
+        $this->assertNotNull($iconProperty->getValue(), 'EmergencyRollCall should have a navigation icon');
     }
 }
