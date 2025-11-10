@@ -20,8 +20,8 @@ class ConsumableResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check() &&
-               Auth::guard('tenant')->user()->can('view consumable');
+        // Hidden from navigation - functionality maintained for system use
+        return false;
     }
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';

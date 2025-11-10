@@ -32,7 +32,7 @@ class ScanItemResource extends Resource
 
     protected static ?string $navigationLabel = 'Scan Items';
 
-    protected static ?string $navigationGroup = 'Scans';
+    protected static ?string $navigationGroup = 'Settings';
 
     protected static ?string $modelLabel = 'Scan Item';
 
