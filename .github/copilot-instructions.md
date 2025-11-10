@@ -118,3 +118,8 @@ Uses Spatie Laravel Permission with tenant-aware guards. Permissions are tenant-
 - **Guards**: Separate provider models (`User` vs `UserTenant`)
 
 When adding features, always consider the landlord/tenant boundary and use appropriate connection traits and guard checks.
+
+## Testing Guidelines
+
+- **Unit Tests**: Place in `tests/Unit/Landlord` or `tests/Unit/Tenant` based on model context. Use `UsesLandlordConnection` or `UsesTenantConnection` traits in test models.
+- **Feature Tests**: Use `tests/Feature/Landlord` or `tests/Feature/Tenant` directories accordingly, ensuring the correct guard is used for authentication in tests. Always create tests for new features to verify multi-tenant behavior.
