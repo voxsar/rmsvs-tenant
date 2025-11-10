@@ -57,7 +57,15 @@ class ScanItemResource extends Resource
                             ->label('Item Type')
                             ->options(ScanItem::types())
                             ->required()
-                            ->live(),
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set, $record) {
+                                // Set default threshold values when type changes
+                                if (! $record) {
+                                    $tempItem = new ScanItem(['type' => $state]);
+                                    $set('notification_threshold', $tempItem->getDefaultNotificationThreshold());
+                                    $set('notification_threshold_unit', $tempItem->getDefaultNotificationThresholdUnit());
+                                }
+                            }),
                         Textarea::make('description')
                             ->rows(3)
                             ->columnSpanFull(),
@@ -65,13 +73,43 @@ class ScanItemResource extends Resource
                             ->label('Active')
                             ->default(true)
                             ->helperText('Inactive items are hidden from scanners and dashboard alerts.'),
-                        Toggle::make('notify_if_missed')
-                            ->label('Notify if Missed')
-                            ->visible(fn (callable $get) => $get('type') === ScanItem::TYPE_CONSUMABLE)
-                            ->dehydrateStateUsing(fn ($state, callable $get) => $get('type') === ScanItem::TYPE_CONSUMABLE ? (bool) $state : false)
-                            ->helperText('Enable alerts when a consumable item is not scanned during its active window.'),
                     ])
                     ->columns(2),
+                Section::make('Notification Settings')
+                    ->schema([
+                        Toggle::make('notify_if_missed')
+                            ->label('Notify if Missed')
+                            ->live()
+                            ->helperText('Enable alerts when this item is not scanned during its active window.'),
+                        TextInput::make('notification_threshold')
+                            ->label('Notification Threshold')
+                            ->numeric()
+                            ->minValue(1)
+                            ->visible(fn (callable $get) => $get('notify_if_missed'))
+                            ->required(fn (callable $get) => $get('notify_if_missed'))
+                            ->default(fn (callable $get) => (new ScanItem(['type' => $get('type')]))->getDefaultNotificationThreshold())
+                            ->helperText(fn (callable $get) => match ($get('type')) {
+                                ScanItem::TYPE_ACCESS => 'Number of hours of absence before notification',
+                                ScanItem::TYPE_MEAL => 'Number of missed meals before notification',
+                                ScanItem::TYPE_CONSUMABLE => 'Number of missed consumables before notification',
+                                default => 'Notification threshold'
+                            }),
+                        Select::make('notification_threshold_unit')
+                            ->label('Threshold Unit')
+                            ->options(ScanItem::notificationThresholdUnits())
+                            ->visible(fn (callable $get) => $get('notify_if_missed'))
+                            ->required(fn (callable $get) => $get('notify_if_missed'))
+                            ->default(fn (callable $get) => (new ScanItem(['type' => $get('type')]))->getDefaultNotificationThresholdUnit())
+                            ->disabled(fn (callable $get) => in_array($get('type'), [ScanItem::TYPE_MEAL, ScanItem::TYPE_CONSUMABLE]))
+                            ->dehydrateStateUsing(fn ($state, callable $get) => in_array($get('type'), [ScanItem::TYPE_MEAL, ScanItem::TYPE_CONSUMABLE])
+                                ? 'count'
+                                : $state)
+                            ->helperText(fn (callable $get) => in_array($get('type'), [ScanItem::TYPE_MEAL, ScanItem::TYPE_CONSUMABLE])
+                                ? 'Unit is automatically set to "Count" for Meals and Consumables'
+                                : 'Select hours for time-based tracking'),
+                    ])
+                    ->columns(2)
+                    ->visible(fn (callable $get) => filled($get('type'))),
                 Section::make('Active Period')
                     ->schema([
                         Select::make('active_period_type')
@@ -178,6 +216,13 @@ class ScanItemResource extends Resource
                 IconColumn::make('notify_if_missed')
                     ->label('Notify')
                     ->boolean(),
+                TextColumn::make('notification_threshold')
+                    ->label('Threshold')
+                    ->formatStateUsing(fn (ScanItem $record): string => $record->notify_if_missed && $record->notification_threshold
+                            ? $record->notification_threshold.' '.($record->notification_threshold_unit === 'hours' ? 'hrs' : 'items')
+                            : 'N/A'
+                    )
+                    ->toggleable(isToggledHiddenByDefault: false),
                 IconColumn::make('is_active')
                     ->label('Active')
                     ->boolean(),

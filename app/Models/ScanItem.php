@@ -37,6 +37,8 @@ class ScanItem extends Model
         'active_end_time',
         'custom_windows',
         'notify_if_missed',
+        'notification_threshold',
+        'notification_threshold_unit',
     ];
 
     protected $casts = [
@@ -66,6 +68,34 @@ class ScanItem extends Model
             self::PERIOD_WEEKDAYS => 'Weekdays',
             self::PERIOD_CUSTOM => 'Custom Windows',
         ];
+    }
+
+    public static function notificationThresholdUnits(): array
+    {
+        return [
+            'hours' => 'Hours',
+            'count' => 'Count',
+        ];
+    }
+
+    public function getDefaultNotificationThreshold(): int
+    {
+        return match ($this->type) {
+            self::TYPE_ACCESS => 24,
+            self::TYPE_MEAL => 1,
+            self::TYPE_CONSUMABLE => 1,
+            default => 1,
+        };
+    }
+
+    public function getDefaultNotificationThresholdUnit(): string
+    {
+        return match ($this->type) {
+            self::TYPE_ACCESS => 'hours',
+            self::TYPE_MEAL => 'count',
+            self::TYPE_CONSUMABLE => 'count',
+            default => 'hours',
+        };
     }
 
     /**
@@ -106,13 +136,12 @@ class ScanItem extends Model
 
     public function shouldNotifyForMissedScan(): bool
     {
-        return $this->type === self::TYPE_CONSUMABLE && $this->notify_if_missed;
+        return $this->notify_if_missed && $this->is_active;
     }
 
     public function scopeRequiringNotification($query)
     {
-        return $query->where('type', self::TYPE_CONSUMABLE)
-            ->where('notify_if_missed', true)
+        return $query->where('notify_if_missed', true)
             ->where('is_active', true);
     }
 
