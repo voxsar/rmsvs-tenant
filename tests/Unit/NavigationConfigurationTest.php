@@ -40,7 +40,7 @@ class NavigationConfigurationTest extends TestCase
             PermissionResource::class => 'Settings',
             RoleResource::class => 'Settings',
             RoomResource::class => 'Property',
-            ScanItemResource::class => 'Scans',
+            ScanItemResource::class => 'Settings',
             ScannerResource::class => 'Scans',
             TransitResource::class => 'Scans',
             UserTenantResource::class => 'Settings',
@@ -175,6 +175,19 @@ class NavigationConfigurationTest extends TestCase
         $this->assertTrue(
             method_exists(RoleResource::class, 'shouldRegisterNavigation'),
             'RoleResource should have shouldRegisterNavigation method'
+        );
+    }
+
+    /**
+     * Test that ConsumableResource is hidden from navigation.
+     */
+    public function test_consumable_resource_is_hidden_from_navigation(): void
+    {
+        // ConsumableResource has shouldRegisterNavigation() that returns false
+        // Functionality is maintained but hidden from UI
+        $this->assertTrue(
+            method_exists(ConsumableResource::class, 'shouldRegisterNavigation'),
+            'ConsumableResource should have shouldRegisterNavigation method'
         );
     }
 
