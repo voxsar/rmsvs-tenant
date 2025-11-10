@@ -80,7 +80,7 @@ class ScanItem extends Model
 
     public function getDefaultNotificationThreshold(): int
     {
-        return match($this->type) {
+        return match ($this->type) {
             self::TYPE_ACCESS => 24,
             self::TYPE_MEAL => 1,
             self::TYPE_CONSUMABLE => 1,
@@ -90,7 +90,7 @@ class ScanItem extends Model
 
     public function getDefaultNotificationThresholdUnit(): string
     {
-        return match($this->type) {
+        return match ($this->type) {
             self::TYPE_ACCESS => 'hours',
             self::TYPE_MEAL => 'count',
             self::TYPE_CONSUMABLE => 'count',

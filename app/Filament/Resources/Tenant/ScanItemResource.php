@@ -60,7 +60,7 @@ class ScanItemResource extends Resource
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set, $record) {
                                 // Set default threshold values when type changes
-                                if (!$record) {
+                                if (! $record) {
                                     $tempItem = new ScanItem(['type' => $state]);
                                     $set('notification_threshold', $tempItem->getDefaultNotificationThreshold());
                                     $set('notification_threshold_unit', $tempItem->getDefaultNotificationThresholdUnit());
@@ -88,7 +88,7 @@ class ScanItemResource extends Resource
                             ->visible(fn (callable $get) => $get('notify_if_missed'))
                             ->required(fn (callable $get) => $get('notify_if_missed'))
                             ->default(fn (callable $get) => (new ScanItem(['type' => $get('type')]))->getDefaultNotificationThreshold())
-                            ->helperText(fn (callable $get) => match($get('type')) {
+                            ->helperText(fn (callable $get) => match ($get('type')) {
                                 ScanItem::TYPE_ACCESS => 'Number of hours of absence before notification',
                                 ScanItem::TYPE_MEAL => 'Number of missed meals before notification',
                                 ScanItem::TYPE_CONSUMABLE => 'Number of missed consumables before notification',
@@ -101,8 +101,11 @@ class ScanItemResource extends Resource
                             ->required(fn (callable $get) => $get('notify_if_missed'))
                             ->default(fn (callable $get) => (new ScanItem(['type' => $get('type')]))->getDefaultNotificationThresholdUnit())
                             ->disabled(fn (callable $get) => in_array($get('type'), [ScanItem::TYPE_MEAL, ScanItem::TYPE_CONSUMABLE]))
-                            ->helperText(fn (callable $get) => in_array($get('type'), [ScanItem::TYPE_MEAL, ScanItem::TYPE_CONSUMABLE]) 
-                                ? 'Unit is automatically set to "Count" for Meals and Consumables' 
+                            ->dehydrateStateUsing(fn ($state, callable $get) => in_array($get('type'), [ScanItem::TYPE_MEAL, ScanItem::TYPE_CONSUMABLE])
+                                ? 'count'
+                                : $state)
+                            ->helperText(fn (callable $get) => in_array($get('type'), [ScanItem::TYPE_MEAL, ScanItem::TYPE_CONSUMABLE])
+                                ? 'Unit is automatically set to "Count" for Meals and Consumables'
                                 : 'Select hours for time-based tracking'),
                     ])
                     ->columns(2)
@@ -215,9 +218,8 @@ class ScanItemResource extends Resource
                     ->boolean(),
                 TextColumn::make('notification_threshold')
                     ->label('Threshold')
-                    ->formatStateUsing(fn (ScanItem $record): string => 
-                        $record->notify_if_missed && $record->notification_threshold
-                            ? $record->notification_threshold . ' ' . ($record->notification_threshold_unit === 'hours' ? 'hrs' : 'items')
+                    ->formatStateUsing(fn (ScanItem $record): string => $record->notify_if_missed && $record->notification_threshold
+                            ? $record->notification_threshold.' '.($record->notification_threshold_unit === 'hours' ? 'hrs' : 'items')
                             : 'N/A'
                     )
                     ->toggleable(isToggledHiddenByDefault: false),
