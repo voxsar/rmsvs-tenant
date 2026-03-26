@@ -45,7 +45,7 @@ class ManualScanPage extends Page implements HasForms
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::guard('tenant')->check();
+        return false; // Hidden per requirements
     }
 
     protected static string $view = 'filament.pages.manual-scan-page';

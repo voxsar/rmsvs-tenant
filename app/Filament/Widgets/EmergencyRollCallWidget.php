@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 
 class EmergencyRollCallWidget extends BaseWidget
 {
-    protected static ?string $heading = 'Emergency Roll Call';
+    protected static ?string $heading = 'Emergency Roll Call List';
 
     protected static ?int $sort = 2;
 
@@ -36,6 +36,14 @@ class EmergencyRollCallWidget extends BaseWidget
                     ->label('Resident')
                     ->formatStateUsing(fn (Guest $record) => $record->first_name.' '.$record->last_name)
                     ->searchable(['first_name', 'last_name'])
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('phone')
+                    ->label('Phone')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('room')
                     ->label('Room')
@@ -65,35 +73,6 @@ class EmergencyRollCallWidget extends BaseWidget
                     })
                     ->placeholder('No activity recorded')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('roll_call_status')
-                    ->label('Status')
-                    ->badge()
-                    ->color(function (Guest $record): string {
-                        [$status] = $this->resolveStatus($record);
-
-                        return match ($status) {
-                            'On Site' => 'success',
-                            'Authorized Absence' => 'info',
-                            'Requires Follow-up' => 'danger',
-                            default => 'warning',
-                        };
-                    })
-                    ->formatStateUsing(function (Guest $record): string {
-                        [$status, $note] = $this->resolveStatus($record);
-
-                        return $note ? $status.' · '.$note : $status;
-                    }),
-                Tables\Columns\IconColumn::make('attention')
-                    ->label('Action Needed')
-                    ->getStateUsing(function (Guest $record): bool {
-                        [$status] = $this->resolveStatus($record);
-
-                        return $status === 'Requires Follow-up';
-                    })
-                    ->boolean()
-                    ->trueColor('danger')
-                    ->falseColor('gray')
-                    ->tooltip('Investigate immediately'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('attention')
@@ -108,6 +87,16 @@ class EmergencyRollCallWidget extends BaseWidget
                             return $query->whereIn('id', $this->idsMatchingStatus($value));
                         });
                     }),
+            ])
+            ->actions([
+                Tables\Actions\Action::make('view_photo')
+                    ->label('View Photo')
+                    ->icon('heroicon-o-photo')
+                    ->modalHeading('Guest Photo')
+                    ->modalContent(fn (Guest $record) => view('filament.widgets.guest-photo-modal', ['guest' => $record]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close')
+                    ->visible(fn (Guest $record): bool => filled($record->photo)),
             ])
             ->defaultSort('first_name')
             ->paginated([10, 25, 50]);
